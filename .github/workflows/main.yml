@@ -18,7 +18,7 @@ jobs:
       run: |
         ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
         pwd
-        cd ${{WORK_DIR}}
+        cd ~/my-app
         "
         # "git checkout ${{ secrets.MAIN_BRANCH }} && git pull && exit"
     - name: cleanup
