@@ -16,9 +16,7 @@ jobs:
         ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
     - name: connect and pull
       run: |
-        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}"
-          pwd
-        "
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
         echo "${{secrets.VPS_PASS}}" 
         # "git checkout ${{ secrets.MAIN_BRANCH }} && git pull && exit"
     - name: cleanup
