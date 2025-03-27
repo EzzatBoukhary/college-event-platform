@@ -17,7 +17,7 @@ jobs:
     - name: connect and pull
       run: |
         ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 
-        echo "${{secrets.VPS_PASS}}"
+        echo "${{secrets.VPS_PASS}}" 
         "cd ${{ secrets.WORK_DIR }} && git checkout ${{ secrets.MAIN_BRANCH }} && git pull && exit"
     - name: cleanup
       run: rm -rf ~/.ssh
