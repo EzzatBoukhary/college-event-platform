@@ -17,8 +17,9 @@ jobs:
     - name: connect and pull
       run: |
         ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
-        pwd
         cd ~/my-app
+        pwd
+        echo asdlfjkals;
         "
         # "git checkout ${{ secrets.MAIN_BRANCH }} && git pull && exit"
     - name: cleanup
