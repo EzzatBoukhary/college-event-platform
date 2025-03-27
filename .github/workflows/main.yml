@@ -16,7 +16,7 @@ jobs:
         ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
     - name: connect and pull
       run: |
-        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "pwd"
         # echo "${{secrets.VPS_PASS}}
         # pwd
         # " 
