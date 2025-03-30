@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Header from '../components/Header';
-// import Footer from '../components/Footer';
+import Footer from '../components/Footer';
 import Input from '../components/Input';
 import Button from '../components/Button';
 
@@ -18,7 +18,7 @@ function RSOEventPage() {
 
   const handleSave = (e) => {
     e.preventDefault();
-    // Save RSO event logic
+    // save RSO event logic
     console.log('RSO Event:', event);
   };
 

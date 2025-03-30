@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
-//import Footer from '../components/Footer';
+import Footer from '../components/Footer';
 import Input from '../components/Input';
 import Button from '../components/Button';
 
@@ -11,7 +11,7 @@ function LoginPage() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Handle login logic here
+    // login logic here
     console.log('Logging in with:', { email, password });
   };
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
-// import Footer from '../components/Footer';
+import Footer from '../components/Footer';
 import Input from '../components/Input';
 import Button from '../components/Button';
 
@@ -10,7 +10,7 @@ function ForgotPasswordPage() {
 
   const handleReset = (e) => {
     e.preventDefault();
-    // Handle password reset logic here
+    // password reset logic here
     console.log('Reset password for:', email);
   };
 

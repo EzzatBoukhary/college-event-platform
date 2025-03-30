@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
-// import Footer from '../components/Footer';
+import Footer from '../components/Footer';
 import Input from '../components/Input';
 import Button from '../components/Button'; 
 
@@ -12,7 +12,7 @@ function SignUpPage() {
 
   const handleSignUp = (e) => {
     e.preventDefault();
-    // Handle sign up logic here
+    // sign up logic here
     console.log('Sign up with:', { email, password, confirm });
   };
 

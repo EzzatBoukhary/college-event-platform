@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Header from '../components/Header';
-// import Footer from '../components/Footer';
+import Footer from '../components/Footer';
 import Input from '../components/Input';
 import Button from '../components/Button';
 
@@ -17,7 +17,7 @@ function RSOProfilePage() {
 
   const handleSave = (e) => {
     e.preventDefault();
-    // Save RSO profile logic
+    // save RSO profile logic
     console.log('RSO Profile:', rso);
   };
 
