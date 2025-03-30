@@ -1,23 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Input from '../components/Input';
 import Button from '../components/Button';
 
-function UniversityProfilePage() {
-  const [university, setUniversity] = useState({
+interface UniversityProfile {
+  name: string;
+  location: string;
+  description: string;
+}
+
+const UniversityProfilePage: React.FC = () => {
+  const [university, setUniversity] = useState<UniversityProfile>({
     name: '',
     location: '',
     description: '',
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUniversity({ ...university, [e.target.name]: e.target.value });
   };
 
-  const handleSave = (e) => {
+  const handleSave = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // save university profile logic
     console.log('University Profile:', university);
   };
 
@@ -54,6 +59,6 @@ function UniversityProfilePage() {
       <Footer />
     </div>
   );
-}
+};
 
 export default UniversityProfilePage;

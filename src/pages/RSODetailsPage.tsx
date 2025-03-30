@@ -2,9 +2,15 @@ import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-function RSODetailsPage() {
-  // fetch RSO details via ID from backend
-  const rso = {
+interface RSO {
+  name: string;
+  description: string;
+  contactEmail: string;
+}
+
+const RSODetailsPage: React.FC = () => {
+  // replace with actual data fetching logic
+  const rso: RSO = {
     name: 'Sample RSO',
     description: 'Detailed info about this RSO...',
     contactEmail: 'rso@example.com',
@@ -21,6 +27,6 @@ function RSODetailsPage() {
       <Footer />
     </div>
   );
-}
+};
 
 export default RSODetailsPage;

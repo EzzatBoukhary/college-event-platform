@@ -1,23 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Input from '../components/Input';
 import Button from '../components/Button';
 
-function RSOProfilePage() {
-  const [rso, setRSO] = useState({
+interface RSOProfile {
+  name: string;
+  description: string;
+  contactEmail: string;
+}
+
+const RSOProfilePage: React.FC = () => {
+  const [rso, setRSO] = useState<RSOProfile>({
     name: '',
     description: '',
     contactEmail: '',
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setRSO({ ...rso, [e.target.name]: e.target.value });
   };
 
-  const handleSave = (e) => {
+  const handleSave = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // save RSO profile logic
     console.log('RSO Profile:', rso);
   };
 
@@ -54,6 +59,6 @@ function RSOProfilePage() {
       <Footer />
     </div>
   );
-}
+};
 
 export default RSOProfilePage;

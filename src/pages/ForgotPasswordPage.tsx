@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Input from '../components/Input';
 import Button from '../components/Button';
 
-function ForgotPasswordPage() {
-  const [email, setEmail] = useState('');
+const ForgotPasswordPage: React.FC = () => {
+  const [email, setEmail] = useState<string>('');
 
-  const handleReset = (e) => {
+  const handleReset = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // password reset logic here
     console.log('Reset password for:', email);
   };
 
@@ -26,6 +25,7 @@ function ForgotPasswordPage() {
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
           />
           <Button type="submit" text="Reset Password" />
           <div className="form-links">
@@ -36,6 +36,6 @@ function ForgotPasswordPage() {
       <Footer />
     </div>
   );
-}
+};
 
 export default ForgotPasswordPage;

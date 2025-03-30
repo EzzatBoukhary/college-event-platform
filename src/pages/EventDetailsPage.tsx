@@ -2,9 +2,16 @@ import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-function EventDetailsPage() {
-  // fetch RSO details via ID from backend
-  const event = {
+interface Event {
+  name: string;
+  date: string;
+  location: string;
+  description: string;
+}
+
+const EventDetailsPage: React.FC = () => {
+  // replace with actual data fetching logic
+  const event: Event = {
     name: 'Sample Event',
     date: '2025-05-01',
     location: 'Main Hall',
@@ -23,6 +30,6 @@ function EventDetailsPage() {
       <Footer />
     </div>
   );
-}
+};
 
 export default EventDetailsPage;

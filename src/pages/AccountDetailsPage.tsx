@@ -1,23 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Input from '../components/Input';
 import Button from '../components/Button';
 
-function AccountDetailsPage() {
-  const [account, setAccount] = useState({
+interface AccountDetails {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+const AccountDetailsPage: React.FC = () => {
+  const [account, setAccount] = useState<AccountDetails>({
     firstName: '',
     lastName: '',
     email: '',
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setAccount({ ...account, [e.target.name]: e.target.value });
   };
 
-  const handleSave = (e) => {
+  const handleSave = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Save account details logic
     console.log('Account Details:', account);
   };
 
@@ -54,6 +59,6 @@ function AccountDetailsPage() {
       <Footer />
     </div>
   );
-}
+};
 
 export default AccountDetailsPage;

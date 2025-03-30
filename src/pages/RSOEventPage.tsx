@@ -1,24 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Input from '../components/Input';
 import Button from '../components/Button';
 
-function RSOEventPage() {
-  const [event, setEvent] = useState({
+interface RSOEvent {
+  name: string;
+  date: string;
+  location: string;
+  description: string;
+}
+
+const RSOEventPage: React.FC = () => {
+  const [event, setEvent] = useState<RSOEvent>({
     name: '',
     date: '',
     location: '',
     description: '',
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEvent({ ...event, [e.target.name]: e.target.value });
   };
 
-  const handleSave = (e) => {
+  const handleSave = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // save RSO event logic
     console.log('RSO Event:', event);
   };
 
@@ -62,6 +68,6 @@ function RSOEventPage() {
       <Footer />
     </div>
   );
-}
+};
 
 export default RSOEventPage;

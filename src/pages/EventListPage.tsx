@@ -2,8 +2,15 @@ import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-function EventListPage() {
-  const events = [
+interface Event {
+  id: number;
+  name: string;
+  date: string;
+  location: string;
+}
+
+const EventListPage: React.FC = () => {
+  const events: Event[] = [
     { id: 1, name: 'Event A', date: '2025-05-01', location: 'Hall A' },
     { id: 2, name: 'Event B', date: '2025-06-10', location: 'Hall B' },
   ];
@@ -35,6 +42,6 @@ function EventListPage() {
       <Footer />
     </div>
   );
-}
+};
 
 export default EventListPage;

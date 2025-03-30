@@ -1,11 +1,11 @@
 import React from 'react';
 
-function Header() {
+const Header: React.FC = () => {
   return (
     <header className="header">
       <h1>Event Planner</h1>
     </header>
   );
-}
+};
 
 export default Header;

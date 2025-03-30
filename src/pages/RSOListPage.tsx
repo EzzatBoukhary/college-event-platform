@@ -2,9 +2,14 @@ import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-function RSOListPage() {
-  // fetch RSO ID from backend
-  const rsos = [
+interface RSO {
+  id: number;
+  name: string;
+  description: string;
+}
+
+const RSOListPage: React.FC = () => {
+  const rsos: RSO[] = [
     { id: 1, name: 'RSO A', description: 'Description A' },
     { id: 2, name: 'RSO B', description: 'Description B' },
   ];
@@ -34,6 +39,6 @@ function RSOListPage() {
       <Footer />
     </div>
   );
-}
+};
 
 export default RSOListPage;

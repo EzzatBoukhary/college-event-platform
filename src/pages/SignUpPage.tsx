@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Input from '../components/Input';
-import Button from '../components/Button'; 
+import Button from '../components/Button';
 
-function SignUpPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
+const SignUpPage: React.FC = () => {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [confirm, setConfirm] = useState<string>('');
 
-  const handleSignUp = (e) => {
+  const handleSignUp = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // sign up logic here
     console.log('Sign up with:', { email, password, confirm });
   };
 
@@ -28,6 +27,7 @@ function SignUpPage() {
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
           />
           <Input
             label="Password"
@@ -35,6 +35,7 @@ function SignUpPage() {
             name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
           />
           <Input
             label="Confirm Password"
@@ -42,6 +43,7 @@ function SignUpPage() {
             name="confirm"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
+            placeholder="Confirm your password"
           />
           <Button type="submit" text="Register" />
           <div className="form-links">
@@ -52,6 +54,6 @@ function SignUpPage() {
       <Footer />
     </div>
   );
-}
+};
 
 export default SignUpPage;
