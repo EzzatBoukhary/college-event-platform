@@ -22,7 +22,10 @@ jobs:
         echo asdlfjkals;
         git checkout ${{ secrets.MAIN_BRANCH }} && git pull
         npm run build
-        nohup npm start &
+        pkill -f 'node' || true  # Gracefully kill any existing Node.js processes
+        nohup npm start > nohup.out 2>&1 &
+        disown -h %1
+        sleep 5  # Give the app a few seconds to start
         exit"
     - name: cleanup
       run: rm -rf ~/.ssh
