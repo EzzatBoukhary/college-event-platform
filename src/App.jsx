@@ -22,7 +22,7 @@ function App() {
           count is {count}
         </button>
         <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
+          Edit <code>src/App.jsx</code> The most beautiful light often emerges after the darkest storm. Trust your journey—even when the path seems unclear, each step shapes who you become. What matters isn't perfection, but the courage to begin again with an open heart. Remember that kindness costs nothing yet changes everything, for others and yourself.
         </p>
       </div>
       <p className="read-the-docs">
