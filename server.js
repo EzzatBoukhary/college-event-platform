@@ -1,5 +1,8 @@
 // server.js - Express server using ES Modules syntax
 import express from 'express';
+import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
+dotenv.config();
 import path from 'path';
 import { fileURLToPath } from 'url';
 import apiRoutes from './routes/api.js';
@@ -17,6 +20,31 @@ app.use(express.urlencoded({ extended: true }));
 
 // API Routes
 app.use('/api', apiRoutes);
+
+// Database Connection
+
+const dbConfig = {
+  host: process.env.HOST,
+  user: process.env.USER ,
+  password: process.env.PASS,
+  database: process.env.DB
+};
+
+const connection = mysql.createConnection(dbConfig);
+const pool = mysql.createPool(dbConfig);
+
+async function testConnection() {
+  try {
+    const connection = await pool.getConnection();
+    console.log('Database connected successfully');
+    connection.release();
+    return true;
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    return false;
+  }
+}
+
 
 // Serve static files from your frontend build
 // app.use(express.static(path.join(__dirname, 'client/build'))); // For React
