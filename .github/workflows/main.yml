@@ -22,7 +22,7 @@ jobs:
         echo asdlfjkals;
         git checkout ${{ secrets.MAIN_BRANCH }} && git pull
         npm run build
-        npm start
+        nohup npm start &
         exit"
     - name: cleanup
       run: rm -rf ~/.ssh
