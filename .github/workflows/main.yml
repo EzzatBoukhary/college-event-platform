@@ -20,6 +20,9 @@ jobs:
         cd ~/my-app
         pwd
         echo asdlfjkals;
-        git checkout ${{ secrets.MAIN_BRANCH }} && git pull && exit"
+        git checkout ${{ secrets.MAIN_BRANCH }} && git pull
+        npm run build
+        pm2 restart server.js
+        exit"
     - name: cleanup
       run: rm -rf ~/.ssh
