@@ -44,7 +44,7 @@ async function testConnection() {
     return false;
   }
 }
-
+//  DB Configuration Successful
 
 // Serve static files from your frontend build
 // app.use(express.static(path.join(__dirname, 'client/build'))); // For React
