@@ -46,16 +46,18 @@ async function testConnection() {
 }
 //  DB Configuration Successful
 
+  testConnection();
+
 // Serve static files from your frontend build
 // app.use(express.static(path.join(__dirname, 'client/build'))); // For React
 // OR
 app.use(express.static(path.join(__dirname, 'dist'))); // For Vite
 
-// Handle SPA routing - serve index.html for any route not found
+// Handle SPA routing
+// Serve index.html for any route not found
 app.get('*', (req, res) => {
-  // res.sendFile(path.join(__dirname, 'client/build/index.html')); // For React
-  // OR
   res.sendFile(path.join(__dirname, 'dist/index.html')); // For Vite
+  console.log("Hello World");
 });
 
 // Start server
