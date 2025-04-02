@@ -1,4 +1,4 @@
-.map-popup-overlay {
+/* .map-popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -31,5 +31,5 @@
     border-radius: 4px;
     padding: 10px;
     cursor: pointer;
-    z-index: 2000; /* Ensure the close button is on top */
-  }
+    z-index: 2000; 
+  } */

@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
@@ -27,8 +27,9 @@ app.use(express.static(path.join(__dirname, 'dist'))); // For Vite
 app.get('*', (req, res) => {
   // res.sendFile(path.join(__dirname, 'client/build/index.html')); // For React
   // OR
-  res.sendFile(path.join(__dirname, 'dist/index.html')); // For Vite
+  res.sendFile(path.join(__dirname, 'build', './public/index.html')); // For Vite
 });
+// app.get('*', (req, res) => { res.sendFile(path.join(__dirname, 'build', 'index.html')); });
 
 // Start server
 app.listen(PORT, () => {

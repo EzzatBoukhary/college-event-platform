@@ -1,51 +1,20 @@
-import React, { useState, FormEvent } from 'react';
-import { Link } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import Input from '../components/Input';
-import Button from '../components/Button';
+import React from 'react';
+import '../App.css';
+import Login from '../components/Login';
+import PageTitle from '../components/PageTitle';
 
-const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+interface LoginProps {
+    onLogin: () => void;
+}
 
-  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log('Logging in with:', { email, password });
-  };
-
-  return (
-    <div className="page-container">
-      <Header />
-      <main className="content">
-        <h2>Sign In</h2>
-        <form onSubmit={handleLogin} className="form-container">
-          <Input
-            label="Email"
-            type="email"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-          />
-          <Input
-            label="Password"
-            type="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-          />
-          <Button type="submit" text="Sign In" />
-          <div className="form-links">
-            <Link to="/signup">Sign Up</Link>
-            <Link to="/forgot-password">Forgot Password?</Link>
-          </div>
-        </form>
-      </main>
-      <Footer />
-    </div>
-  );
-};
+const LoginPage: React.FunctionComponent<LoginProps> = ({ onLogin }) => {
+    return (
+        <div id="divTest" style={{width: "100vw", height: "100vh"}}>
+            <div className="page-container" style={{width: "100vw", height: "90vh"}}>
+                <Login onLogin={onLogin}/>
+            </div>
+        </div>
+    );
+}
 
 export default LoginPage;

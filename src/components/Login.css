@@ -1,0 +1,46 @@
+/* login.css */
+
+
+#loginDiv {
+    width: 700px;
+    height: 480px;
+}
+
+.MuiButton-contained {
+    max-width: 200px;
+    border-radius: 10px !important;
+}
+
+#loginButton{
+    background-color: #E2D5C4;
+    color: #0F3874;
+    border: 1px solid #092247;
+}
+
+#loginButton:hover {
+   background-color: #d1bda2;
+    /* background-color: #eae1d5;*/
+}
+
+#signUpButton{
+    background-color: #0F3874;
+    color: #E2D5C4;
+    border: 1px solid #E2D5C4;
+}
+
+#signUpButton:hover {
+    background-color: #092247;
+}
+
+a {
+    color: lightblue !important;
+}
+
+a:visited{
+    color: #ab96d6 !important;
+}
+
+#loginResult{
+    color: #fb7070;
+    text-shadow: 0 0 3px #000000;
+}

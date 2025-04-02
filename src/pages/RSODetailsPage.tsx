@@ -1,32 +1,16 @@
 import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import '../App.css'; // If you have any global styles
+import RSODetails from '../components/RSODetails'; // Path to EventDetails component
+import PageTitle from '../components/PageTitle'; // Assuming you want the header here as well
 
-interface RSO {
-  name: string;
-  description: string;
-  contactEmail: string;
+function RSODetailsPage() {
+    return (
+        <div>
+            <div className="page-container" style={{height: '90vh'}}>
+                <RSODetails />
+            </div>
+        </div>
+    );
 }
-
-const RSODetailsPage: React.FC = () => {
-  // replace with actual data fetching logic
-  const rso: RSO = {
-    name: 'Sample RSO',
-    description: 'Detailed info about this RSO...',
-    contactEmail: 'rso@example.com',
-  };
-
-  return (
-    <div className="page-container">
-      <Header />
-      <main className="content">
-        <h2>{rso.name}</h2>
-        <p>{rso.description}</p>
-        <p>Contact: {rso.contactEmail}</p>
-      </main>
-      <Footer />
-    </div>
-  );
-};
 
 export default RSODetailsPage;
