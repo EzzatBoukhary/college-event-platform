@@ -59,7 +59,6 @@ function App() {
         <Route path="/account-details" element={<AccountDetailsPage />} />
         <Route path="/university-profile" element={<UniversityProfilePage />} />
         <Route path="/rso-profile" element={<RSOProfilePage />} />
-        <Route path="/rso-event" element={<RSOEventPage />} />
         <Route path="/rso-details" element={<RSODetailsPage />} />
         <Route path="/event-list" element={<EventListPage />} />
         <Route path="/event-details" element={<EventDetailsPage />} />
