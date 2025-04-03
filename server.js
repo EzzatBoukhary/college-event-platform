@@ -53,7 +53,7 @@ app.use(express.static(path.join(__dirname, 'dist'))); // For Vite
 
 // Handle SPA routing
 // Serve index.html for any route not found
-app.get('*', (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/index.html')); // For Vite
 });
 
