@@ -6,6 +6,7 @@ dotenv.config();
 import path from 'path';
 import { fileURLToPath } from 'url';
 import apiRoutes from './routes/api.js';
+// import auth from './routes/auth.js';
 
 // ES Modules replacement for __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // API Routes
 app.use('/api', apiRoutes);
+// app.use('/auth', auth);
 
 // Database Connection
 const dbConfig = {

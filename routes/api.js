@@ -54,5 +54,39 @@ router.get('/test', async(req, res) => {
   }
 });
 
+// User Lookup
+// GET endpoint to fetch a specific user by ID
+router.get('/users/:email', async (req, res) => {
+  try {
+    // Grab Email
+    const userEmail = req.params.email;
+
+    // Create the SQL query with a parameter
+    const query = 'SELECT * FROM Users WHERE email = ? LIMIT 1';
+
+    // Execute the query
+      const [rows] = await pool.execute(query, [userEmail]);
+
+    // Check if user exists
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Return the user
+    res.status(200).json({
+      message: 'User retrieved successfully',
+      user: rows[0]
+    });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Failed to retrieve user' });
+  }
+});
+
+
+
+
+
+
 // Add your other API routes here
 export default router;
