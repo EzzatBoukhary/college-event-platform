@@ -37,7 +37,7 @@ router.get('/test', async(req, res) => {
   try {
 
     // Create the SQL query with parameterized values
-      const query = 'INSERT INTO Persons (PersonID, LastName, FirstName, Address, City) VALUES (1, "you", "you", "friendsHouse", "Metro")';
+      const query = 'INSERT INTO Persons (PersonID, LastName, FirstName, Address, City) VALUES (2, "you", "too", "friendsHouse", "Metro")';
     // const values = [name, email, age || null];
 
     // Execute the query

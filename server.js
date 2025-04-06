@@ -29,7 +29,7 @@ const dbConfig = {
   user: process.env.DB_USER ,
   password: process.env.PASS,
   database: process.env.DB,
-  authPlugin: ''
+  // authPlugin: ''
 };
 
 const connection = mysql.createConnection(dbConfig);
