@@ -140,17 +140,78 @@ router.post('/addUni', async (req, res) => {
 
     // Return success response
     res.status(201).json({
-      message: 'User created successfully',
+      message: 'University created successfully',
       userId: result.insertId,
     });
 
   } catch (error) {
-    console.error('Error inserting user:', error);
-    res.status(500).json({ error: 'Failed to create user' });
+    console.error('Error inserting University:', error);
+    res.status(500).json({ error: 'Failed to create University' });
   }
 });
 
+// Add RSO
+router.post('/addRSO', async (req, res) => {
+  try {
 
+    // Extrct values from the JSON body
+    const {UnivID, Name, Status} = req.body;
+
+    // Validate that all required fields are present
+    if (!UnivID || !Name || !Status) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Create the SQL query with parameterized values
+    const query = 'INSERT INTO RSOs(UnivID, Name, Status) VALUES ( ?, ?, ?)';
+    const values = [UnivID, Name, Status];
+
+    // Execute the query
+    const [result] = await pool.execute(query, values);
+
+    // Return success response
+    res.status(201).json({
+      message: 'RSO created successfully',
+      userId: result.insertId,
+    });
+
+  } catch (error) {
+    console.error('Error inserting RSO:', error);
+    res.status(500).json({ error: 'Failed to create RSO' });
+  }
+});
+
+// Add Event
+
+router.post('/addEvent', async (req, res) => {
+  try {
+
+    // Extrct values from the JSON body
+    const {UnivID, LocID, AdminID, SuperAdminID, EventType, EventName, Description, EventDate, EventTime, ContactPhone, ContactEmail} = req.body;
+
+    // Validate that all required fields are present
+    if (!UnivID || !LocID || !AdminID || !SuperAdminID || !EventType || !EventName || !Description || !EventDate || !EventTime || !ContactPhone || !ContactEmail) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Create the SQL query with parameterized values
+    const query = 'INSERT INTO Events(UnivID, LocID, AdminID, SuperAdminID, EventType, EventName, Description, EventDate, EventTime, ContactPhone, ContactEmail) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
+    const values = [UnivID, LocID, AdminID, SuperAdminID, EventType, EventName, Description, EventDate, EventTime, ContactPhone, ContactEmail];
+
+    // Execute the query
+    const [result] = await pool.execute(query, values);
+
+    // Return success response
+    res.status(201).json({
+      message: 'Event created successfully',
+      userId: result.insertId,
+    });
+
+  } catch (error) {
+    console.error('Error inserting Event:', error);
+    res.status(500).json({ error: 'Failed to create Event' });
+  }
+});
 
 // Add your other API routes here
 export default router;
