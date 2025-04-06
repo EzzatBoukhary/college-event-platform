@@ -278,7 +278,37 @@ router.get('/searchRSOs', async (req, res) => {
     res.status(500).json({ error: 'Failed to search RSOs' });
   }
 });
+// TODO: RSOs dont have Contacts
+// RSO Contact
+// router.post('/RSOContact', async (req, res) => {
+//   try {
 
+//     // Extract values from the JSON body
+//     const {RSO_ID} = req.body;
+
+//     // Validate that all required fields are present
+//     if (!RSO_ID) {
+//       return res.status(400).json({ error: 'Missing required fields' });
+//     }
+
+//     // Create the SQL query with parameterized values
+//     const query = 'SELECT FROM RSOs(UnivID, Name, Status) VALUES ( ?, ?, ?)';
+//     const values = [UnivID, Name, Status];
+
+//     // Execute the query
+//     const [result] = await pool.execute(query, values);
+
+//     // Return success response
+//     res.status(201).json({
+//       message: 'RSO created successfully',
+//       userId: result.insertId,
+//     });
+
+//   } catch (error) {
+//     console.error('Error inserting RSO:', error);
+//     res.status(500).json({ error: 'Failed to create RSO' });
+//   }
+// });
 // Add Event
 router.post('/addEvent', async (req, res) => {
   try {
@@ -363,6 +393,62 @@ router.get('/searchEvents', async (req, res) => {
   }
 });
 
+// Event Contacts
+router.get('/eventContact', async (req, res) => {
+  try {
+
+    // Extract values from the JSON body
+    const {EventID} = req.body;
+
+    // Validate that all required fields are present
+    if (!EventID) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Create the SQL query with parameterized values
+    const query = 'SELECT ContactPhone, ContactEmail FROM Events WHERE EventID=? LIMIT 1';
+    const values = [EventID];
+
+    // Execute the query
+    const [result] = await pool.execute(query, values);
+
+    // Return success response
+    res.status(201).json(result);
+
+  } catch (error) {
+    console.error('Error inserting Event:', error);
+    res.status(500).json({ error: 'Failed to create Event' });
+  }
+});
+
+// Get Event Details
+router.get('/eventDetails', async (req, res) => {
+  try {
+
+    // Extract values from the JSON body
+    const {EventID} = req.body;
+
+    // Validate that all required fields are present
+    if (!EventID) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Create the SQL query with parameterized values
+    const query = 'SELECT * FROM Events WHERE EventID=? LIMIT 1';
+    const values = [EventID];
+
+    // Execute the query
+    const [result] = await pool.execute(query, values);
+
+    // Return success response
+    res.status(201).json(result);
+
+  } catch (error) {
+    console.error('Error inserting Event:', error);
+    res.status(500).json({ error: 'Failed to create Event' });
+  }
+});
+
 // Add Comment
 router.post('/addComment', async (req, res) => {
   try {
@@ -377,7 +463,7 @@ router.post('/addComment', async (req, res) => {
 
     // Create the SQL query with parameterized values
     const query = 'INSERT INTO Comments(EventID, UID, CommentText) VALUES (?,?,?)';
-    const values = [EventID, UID, CommentText];
+    const values = [];
 
     // Execute the query
     const [result] = await pool.execute(query, values);
@@ -394,6 +480,70 @@ router.post('/addComment', async (req, res) => {
   }
 });
 
+// Get Comments
+router.get('/getComments', async (req, res) => {
+  try {
 
-// Add your other API routes here
+    // Extract values from the JSON body
+    const {EventID} = req.body;
+
+    // Validate that all required fields are present
+    if (!EventID) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Create the SQL query with parameterized values
+    const query = 'SELECT * FROM Comments WHERE EventID=?';
+    const values = [EventID];
+
+    // Execute the query
+    const [result] = await pool.execute(query, values);
+
+    // Return success response
+    res.status(201).json({
+      message: 'Comment created successfully',
+      insertID: result.insertId,
+    });
+
+  } catch (error) {
+    console.error('Error inserting Comment:', error);
+    res.status(500).json({ error: 'Failed to create Comment' });
+  }
+});
+
+// Edit Comments
+router.post('/editComment', async (req, res) => {
+  try {
+
+    // Extract values from the JSON body
+    const {CommentID, UID, CommentText} = req.body;
+
+    // Validate that all required fields are present
+    if (!CommentID || !UID || !CommentText) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Create the SQL query with parameterized values
+    const query = 'UPDATE Comments SET CommentText = ? WHERE CommentID = ? AND UID = ?';
+    const values = [CommentText, CommentID, UID];
+
+    // Execute the query
+    const [result] = await pool.execute(query, values);
+
+
+    if(result.affectedRows == 0){
+      return res.status(400).json({ error: 'No Changed Made' });
+    }
+    // Return success response
+    res.status(201).json({
+      message: 'Comment Changed successfully',
+      insertID: result.insertId,
+    });
+
+  } catch (error) {
+    console.error('Error Changing Comment:', error);
+    res.status(500).json({ error: 'Failed to Change Comment' });
+  }
+});
+
 export default router;
