@@ -181,6 +181,73 @@ router.post('/addRSO', async (req, res) => {
   }
 });
 
+// Join RSO
+router.post('/addRSOStudent', async (req, res) => {
+  try {
+
+    // Extract values from the JSON body
+    const {RSO_ID, UID} = req.body;
+
+    // Validate that all required fields are present
+    if (!RSO_ID || !UID) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Create the SQL query with parameterized values
+    const query = 'INSERT INTO Students_RSOs(RSO_ID, UID) VALUES ( ?, ?)';
+    const values = [RSO_ID, UID];
+
+    // Execute the query
+    const [result] = await pool.execute(query, values);
+
+    // Return success response
+    res.status(201).json({
+      message: 'Student Added to RSO successfully',
+      userId: result.insertId,
+    });
+
+  } catch (error) {
+    console.error('Error Adding Student to RSO:', error);
+    res.status(500).json({ error: 'Failed to Add Student to RSO' });
+  }
+});
+
+// Search RSOs
+router.get('/searchRSOs', async (req, res) => {
+  try {
+    // Extract search parameters from the query string
+    const { UnivID, Name, Status } = req.query;
+
+    let query = 'SELECT * FROM RSOs WHERE 1=1'; // Start with a basic query
+
+    const values = [];
+
+    // Add conditions based on provided search parameters
+    if (UnivID) {
+      query += ' AND UnivID = ?';
+      values.push(UnivID);
+    }
+    if (Name) {
+      query += ' AND Name LIKE ?'; // Use LIKE for partial matches
+      values.push(`%${Name}%`);
+    }
+    if (Status) {
+      query += ' AND Status = ?';
+      values.push(Status);
+    }
+
+    // Execute the query
+    const [rows] = await pool.execute(query, values);
+
+    // Return the search results
+    res.status(200).json(rows);
+
+  } catch (error) {
+    console.error('Error searching RSOs:', error);
+    res.status(500).json({ error: 'Failed to search RSOs' });
+  }
+});
+
 // Add Event
 router.post('/addEvent', async (req, res) => {
   try {
@@ -264,6 +331,7 @@ router.get('/searchEvents', async (req, res) => {
     res.status(500).json({ error: 'Failed to search Events' });
   }
 });
+
 
 
 
