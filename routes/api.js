@@ -212,6 +212,37 @@ router.post('/addRSOStudent', async (req, res) => {
   }
 });
 
+// Leave RSO
+router.post('/deleteRSOStudent', async (req, res) => {
+  try {
+
+    // Extract values from the JSON body
+    const {RSO_ID, UID} = req.body;
+
+    // Validate that all required fields are present
+    if (!RSO_ID || !UID) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Create the SQL query with parameterized values
+    const query = 'DELETE FROM Students_RSOs WHERE RSO_ID=? AND UID=?';
+    const values = [RSO_ID, UID];
+
+    // Execute the query
+    const [result] = await pool.execute(query, values);
+
+    // Return success response
+    res.status(201).json({
+      message: 'Student Removed to RSO successfully',
+      userId: result.insertId,
+    });
+
+  } catch (error) {
+    console.error('Error Removing Student to RSO:', error);
+    res.status(500).json({ error: 'Failed to Remove Student to RSO' });
+  }
+});
+
 // Search RSOs
 router.get('/searchRSOs', async (req, res) => {
   try {
