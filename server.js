@@ -26,9 +26,10 @@ app.use('/api', apiRoutes);
 // Database Connection
 const dbConfig = {
   host: process.env.HOST,
-  user: process.env.USER ,
+  user: process.env.DB_USER ,
   password: process.env.PASS,
-  database: process.env.DB
+  database: process.env.DB,
+  authPlugin: ''
 };
 
 const connection = mysql.createConnection(dbConfig);
