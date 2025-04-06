@@ -123,7 +123,7 @@ router.post('/signup', async (req, res) => {
 router.post('/addUni', async (req, res) => {
   try {
 
-    // Extrct values from the JSON body
+    // Extract values from the JSON body
     const {Name, Location, Description, NumStudents, Pictures} = req.body;
 
     // Validate that all required fields are present
@@ -154,7 +154,7 @@ router.post('/addUni', async (req, res) => {
 router.post('/addRSO', async (req, res) => {
   try {
 
-    // Extrct values from the JSON body
+    // Extract values from the JSON body
     const {UnivID, Name, Status} = req.body;
 
     // Validate that all required fields are present
@@ -283,7 +283,7 @@ router.get('/searchRSOs', async (req, res) => {
 router.post('/addEvent', async (req, res) => {
   try {
 
-    // Extrct values from the JSON body
+    // Extract values from the JSON body
     const {UnivID, LocID, AdminID, SuperAdminID, EventType, EventName, Description, EventDate, EventTime, ContactPhone, ContactEmail} = req.body;
 
     // Validate that all required fields are present
@@ -363,7 +363,36 @@ router.get('/searchEvents', async (req, res) => {
   }
 });
 
+// Add Comment
+router.post('/addComment', async (req, res) => {
+  try {
 
+    // Extract values from the JSON body
+    const {EventID, UID, CommentText} = req.body;
+
+    // Validate that all required fields are present
+    if (!EventID || !UID || !CommentText) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Create the SQL query with parameterized values
+    const query = 'INSERT INTO Comments(EventID, UID, CommentText) VALUES (?,?,?)';
+    const values = [EventID, UID, CommentText];
+
+    // Execute the query
+    const [result] = await pool.execute(query, values);
+
+    // Return success response
+    res.status(201).json({
+      message: 'Comment created successfully',
+      insertID: result.insertId,
+    });
+
+  } catch (error) {
+    console.error('Error inserting Comment:', error);
+    res.status(500).json({ error: 'Failed to create Comment' });
+  }
+});
 
 
 // Add your other API routes here
