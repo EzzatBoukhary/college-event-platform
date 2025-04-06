@@ -54,11 +54,7 @@ router.get('/test', async(req, res) => {
   }
 });
 
-// User Lookup
-
-// // Add your other API routes here
-// export default router;
-
+// Login
 // GET endpoint to fetch a specific user by email from JSON body
 router.get('/login', async (req, res) => {
   try {
@@ -93,28 +89,7 @@ router.get('/login', async (req, res) => {
   }
 });
 
-// Login
-// router.post('/signup', async(req, res) => {
-//   try {
-
-//     // Create the SQL query with parameterized values
-//       const query = 'INSERT INTO Persons (UnivID, UserType, Name, Email, Password) VALUES (?, ?, ?, ?, ?)';
-//     const values = [name, email, age || null];
-
-//     // Execute the query
-//     const [result] = await pool.execute(query, values);
-
-//     // Return success response
-//     res.status(201).json({
-//       message: 'User created successfully',
-//       userId: result.insertId
-//     });
-//   } catch (error) {
-//     console.error('Error inserting user:', error);
-//     res.status(500).json({ error: 'Failed to create user' });
-//   }
-// });
-
+// Sign Up
 router.post('/signup', async (req, res) => {
   try {
 
@@ -144,6 +119,36 @@ router.post('/signup', async (req, res) => {
   }
 });
 
+// Add University
+router.post('/addUni', async (req, res) => {
+  try {
+
+    // Extrct values from the JSON body
+    const {Name, Location, Description, NumStudents, Pictures} = req.body;
+
+    // Validate that all required fields are present
+    if (!Name || !Location || !Description || !NumStudents || !Pictures) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Create the SQL query with parameterized values
+    const query = 'INSERT INTO Universities(Name, Location, Description, NumStudents, Pictures) VALUES (?, ?, ?, ?, ?)';
+    const values = [Name, Location, Description, NumStudents, Pictures];
+
+    // Execute the query
+    const [result] = await pool.execute(query, values);
+
+    // Return success response
+    res.status(201).json({
+      message: 'User created successfully',
+      userId: result.insertId,
+    });
+
+  } catch (error) {
+    console.error('Error inserting user:', error);
+    res.status(500).json({ error: 'Failed to create user' });
+  }
+});
 
 
 
