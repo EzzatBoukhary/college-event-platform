@@ -182,7 +182,6 @@ router.post('/addRSO', async (req, res) => {
 });
 
 // Add Event
-
 router.post('/addEvent', async (req, res) => {
   try {
 
@@ -212,6 +211,61 @@ router.post('/addEvent', async (req, res) => {
     res.status(500).json({ error: 'Failed to create Event' });
   }
 });
+
+// Search Events
+router.get('/searchEvents', async (req, res) => {
+  try {
+
+    // Extract search parameters from the query string
+    const { UnivID, LocID, AdminID, SuperAdminID, EventType, EventName, EventDate } = req.query;
+
+    let query = 'SELECT * FROM Events WHERE 1=1'; // Start with a basic query
+
+    const values = [];
+
+    // Add conditions based on provided search parameters
+    if (UnivID) {
+      query += ' AND UnivID = ?';
+      values.push(UnivID);
+    }
+    if (LocID) {
+      query += ' AND LocID = ?';
+      values.push(LocID);
+    }
+    if (AdminID) {
+      query += ' AND AdminID = ?';
+      values.push(AdminID);
+    }
+    if (SuperAdminID) {
+      query += ' AND SuperAdminID = ?';
+      values.push(SuperAdminID);
+    }
+    if (EventType) {
+      query += ' AND EventType = ?';
+      values.push(EventType);
+    }
+    if (EventName) {
+      query += ' AND EventName LIKE ?'; // Use LIKE for partial matches
+      values.push(`%${EventName}%`);
+    }
+    if (EventDate) {
+      query += ' AND EventDate = ?';
+      values.push(EventDate);
+    }
+
+    // Execute the query
+    const [rows] = await pool.execute(query, values);
+
+    // Return the search results
+    res.status(200).json(rows);
+
+  } catch (error) {
+    console.error('Error searching Events:', error);
+    res.status(500).json({ error: 'Failed to search Events' });
+  }
+});
+
+
 
 // Add your other API routes here
 export default router;
