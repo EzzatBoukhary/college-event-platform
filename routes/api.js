@@ -56,30 +56,29 @@ router.get('/test', async(req, res) => {
 
 // Login
 // POST endpoint to fetch a specific user by email from JSON body
-// ahmed - redid this to work with post
 router.post('/login', async (req, res) => {
   try {
 
-    // Grab Email from JSON body
+    // Check if request has a body
     if (!req.body || !req.body.email) {
       return res.status(400).json({ error: 'Email is required in request body' });
     }
 
-    // Retrieve the email from the request body
+    // Grab Email from JSON body
     const userEmail = req.body.email;
 
-    // Prepare the SQL query with a parameter
+    // Create the SQL query with a parameter
     const query = 'SELECT * FROM Users WHERE email = ? LIMIT 1';
 
     // Execute the query
     const [rows] = await pool.execute(query, [userEmail]);
 
-    // Check if a user was found
+    // Check if user exists
     if (rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Return the found user
+    // Return the user
     res.status(200).json({
       message: 'User retrieved successfully',
       user: rows[0]
@@ -89,7 +88,6 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve user' });
   }
 });
-
 
 // Sign Up
 router.post('/signup', async (req, res) => {
