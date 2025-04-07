@@ -58,6 +58,7 @@ app.use(express.static(path.join(__dirname, 'dist'))); // For Vite
 // Serve index.html for any route not found
 app.get('/', (req, res) => {
  res.sendFile(path.join(__dirname, 'dist/index.html')); // For Vite
+
 });
 
 // Start server
