@@ -5,7 +5,7 @@ import './GeneralDetails.css';
 function RSOProfile() {
     return (
         <div>
-             //wip
+             //wip, we might not even need this
         </div>
     );}
 
