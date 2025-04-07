@@ -1,5 +1,4 @@
 html, body {
-
   min-height: 100%;
   width: 100%;
   height: 100%;
@@ -20,7 +19,6 @@ html, body {
   flex-direction: column;
 
 }
-
 
 .background-container {
   min-height: 100%;
