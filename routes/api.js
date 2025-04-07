@@ -94,16 +94,17 @@ router.post('/signup', async (req, res) => {
   try {
 
     // Extract values from the JSON body
-    const { UnivID, UserType, Name, Email, Password } = req.body;
+    const { /*UnivID, UserType, Name,*/ Email, Password } = req.body;
 
     // Validate that all required fields are present
-    if (!UnivID || !UserType || !Name || !Email || !Password) {
+    if (/*!UnivID || !UserType || !Name ||*/ !Email || !Password) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     // Create the SQL query with parameterized values
-    const query = 'INSERT INTO Users(UnivID, UserType, Name, Email, Password) VALUES (?, ?, ?, ?, ?)';
-    const values = [UnivID, UserType, Name, Email, Password];
+    //const query = 'INSERT INTO Users(UnivID, UserType, Name, Email, Password) VALUES (?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO Users(Email, Password) VALUES (?, ?)';
+    const values = [/*UnivID, UserType, Name,*/ Email, Password];
 
     // Execute the query
     const [result] = await pool.execute(query, values);
