@@ -56,7 +56,7 @@ router.get('/test', async(req, res) => {
 
 // Login
 // GET endpoint to fetch a specific user by email from JSON body
-router.get('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
 
     // Check if request has a body
@@ -92,6 +92,9 @@ router.get('/login', async (req, res) => {
 // Sign Up
 router.post('/signup', async (req, res) => {
   try {
+
+    // Hey this is ahmed, i changed this endpoint up because signup only asks for email and password, the other variables can change after the user logs in
+    // if i did it wrong then pls fix it
 
     // Extract values from the JSON body
     const { /*UnivID, UserType, Name,*/ Email, Password } = req.body;
