@@ -4,15 +4,23 @@ import { useNavigate } from 'react-router-dom';
 import './SignUp.css';
 
 function SignUp() {
+    const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
-
+    const [userType, setUserType] = useState<string>('');
     const [emailError, setEmailError] = useState<string>('');
+    const [nameError, setNameError] = useState<string>('');
+    const [userTypeError, setUserTypeError] = useState<string>('');
     const [passwordError, setPasswordError] = useState<string>('');
     const [confirmPasswordError, setConfirmPasswordError] = useState<string>('');
     const [signupResult, setSignUpResult] = useState<string>('');
     const navigate = useNavigate();
+
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setName(e.target.value);
+        setNameError('');
+    };
 
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
@@ -27,6 +35,11 @@ function SignUp() {
     const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setConfirmPassword(e.target.value);
         setConfirmPasswordError('');
+    };
+
+    const handleUserType = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setUserType(e.target.value);
+        setUserTypeError('');
     };
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -119,6 +132,19 @@ function SignUp() {
                 </Typography>
                 <TextField
                     className="custom-textfield"
+                    id="name"
+                    placeholder="Name"
+                    type="name"
+                    variant="outlined"
+                    margin="normal"
+                    fullWidth
+                    value={name}
+                    onChange={handleNameChange}
+                    error={!!nameError}
+                    helperText={nameError}
+                />
+                <TextField
+                    className="custom-textfield"
                     id="email"
                     placeholder="Email Address"
                     type="email"
@@ -156,6 +182,21 @@ function SignUp() {
                     error = {!!confirmPasswordError}
                     helperText = {confirmPasswordError}
                 />
+                <div className="form-group">
+                    <label htmlFor="userType">User Type</label>
+                    <select
+                        id="userType"
+                        value={userType}
+                        onChange={handleUserType}
+                        className={`form-control ${userTypeError ? 'is-invalid' : ''}`}
+                    >
+                    <option value="">Select User Type</option>
+                    <option value="Student">Student</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Super Admin">Super Admin</option>
+                </select>
+                {userTypeError && <div className="invalid-feedback">{userTypeError}</div>}
+                </div>
                 <Button
                     id="CreateAccount"
                     className="ncButton"
