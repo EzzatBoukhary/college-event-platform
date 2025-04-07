@@ -103,7 +103,6 @@ router.post('/signup', async (req, res) => {
 
     // Create the SQL query with parameterized values
     const query = 'INSERT INTO Users(UnivID, UserType, Name, Email, Password) VALUES (?, ?, ?, ?, ?)';
-    //const query = 'INSERT INTO Users(Email, Password) VALUES (?, ?)';
     const values = [UnivID, UserType, Name, Email, Password];
 
     // Execute the query
