@@ -27,7 +27,7 @@ interface LoginProps {
          }
 
          try {
-             const response = await fetch('http://155.138.217.239:5000/', {
+             const response = await fetch('http://155.138.217.239:5000/login', {
                  method: 'POST',
                  headers: {
                      'Content-Type': 'application/json'
