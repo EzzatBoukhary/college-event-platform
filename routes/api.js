@@ -78,7 +78,7 @@ router.post('/login', async (req, res) => {
     if (rows.length === 0) {
       return res.status(400).json({
         status: "failed",
-        data: [],
+        //data: [],
         message: "User not found.",
       });
     }
@@ -103,7 +103,7 @@ router.post('/login', async (req, res) => {
     // currently sends back user's email, id, and JWT issued to them
     res.status(200).json({
       status: "success",
-    data: [{ email: user.email, _id: user._id/*, token: token */}], // returns token too
+    //data: [{ email: user.email, _id: user._id/*, token: token */}], // returns token too
       message: "User logged in.",
     });
     res.end(); // just for safety
