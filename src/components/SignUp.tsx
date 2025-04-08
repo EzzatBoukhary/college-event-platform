@@ -97,10 +97,10 @@ function SignUp() {
                     navigate('/');
                 } else {
                     const errorJson = await response.json();
-                    if (errorJson.message === 'Failed to create user') {
-                        setEmailError('Email already exists or there was a failure. Please try again or use a different email.');
+                    if (errorJson.error === 'Failed to create user') {
+                        setEmailError('Email already exists. Please try again or use a different email.');
                     } else {
-                        setSignUpResult(errorJson.message || 'Failed to create account.');
+                        setSignUpResult(errorJson.error || 'Failed to create account.');
                     }
                 };
 
