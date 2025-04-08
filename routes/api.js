@@ -486,6 +486,47 @@ router.get('/eventDetails', async (req, res) => {
   }
 });
 
+// Add Rating
+/* {
+  "EventID": 1,
+  "UID": 12,
+  "Rating": 5
+} */
+  router.post('/addRating', async (req, res) => {
+    try {
+      const { EventID, UID, Rating } = req.body;
+  
+      // Validate required fields
+      if (!EventID || !UID || !Rating) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+  
+      // Ensure rating is between 1 and 5
+      if (Rating < 1 || Rating > 5) {
+        return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+      }
+  
+      // Insert or update rating (a user can only rate once per event)
+      const query = `
+        INSERT INTO Ratings (EventID, UID, Rating)
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE Rating = VALUES(Rating), Timestamp = CURRENT_TIMESTAMP
+      `;
+      const values = [EventID, UID, Rating];
+  
+      const [result] = await pool.execute(query, values);
+  
+      res.status(201).json({
+        message: 'Rating submitted successfully',
+        result: result
+      });
+  
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+      res.status(500).json({ error: 'Failed to submit rating' });
+    }
+  });
+
 // Add Comment
 router.post('/addComment', async (req, res) => {
   try {
