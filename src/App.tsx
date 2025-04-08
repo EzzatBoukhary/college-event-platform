@@ -34,7 +34,6 @@
                   <Routes>
                       <Route path="/" element={<LoginPage onLogin={handleLogin}/>} />
                       <Route path="/signup" element={<SignUpPage />} />
-                      {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} /> */}
                       <Route path="/account-details" element={<AccountDetailsPage />} />
                       <Route path="/university-profile" element={<UniversityProfilePage />} />
                       <Route path="/rso-profile" element={<RSOProfilePage />} />
@@ -42,7 +41,7 @@
                       <Route path="/rso-details" element={<RSODetailsPage />} />
                       <Route path="/event-list" element={<EventListPage />} />
                       <Route path="/event-details" element={<EventDetailsPage />} />
-
+                      {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} /> */}
                       {/* You can add more routes here */}
                   </Routes>
               </div>

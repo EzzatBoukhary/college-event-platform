@@ -58,7 +58,7 @@ app.use(express.static(path.join(__dirname, 'dist'))); // For Vite
 app.get('*', (req, res) => {
   // res.sendFile(path.join(__dirname, 'client/build/index.html')); // For React
   // OR
-  res.sendFile(path.join(__dirname, 'build', './public/index.html')); // For Vite
+  res.sendFile(path.join(__dirname, 'dist', './public/index.html')); // For Vite
 });
 // app.get('*', (req, res) => { res.sendFile(path.join(__dirname, 'build', 'index.html')); });
 
