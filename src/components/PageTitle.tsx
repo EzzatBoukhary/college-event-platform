@@ -22,13 +22,61 @@ function PageTitle({ loggedIn, handleLogout }: PageTitleProps) {
                 <span className="navbar-title">Event Manager</span>
                 {loggedIn && (
                     <div className="ml-auto" style={{padding: 2}}>
-                        <Nav className="nav-links">
+                        <Button
+                            id="backButton"
+                            className="ncButton"
+                            variant="contained"
+                            color="secondary"
+                            //sx={{ marginTop: 2 }}
+                            onClick={() => {
+                                navigate('/account-details')
+                            }}
+                        >
+                            Account Details
+                        </Button>
+                        <Button
+                            id="backButton"
+                            className="ncButton"
+                            variant="contained"
+                            color="secondary"
+                            //sx={{ marginTop: 2 }}
+                            onClick={() => {
+                                navigate('/rso-list')
+                            }}
+                        >
+                            RSO List
+                        </Button>
+                        <Button
+                            id="backButton"
+                            className="ncButton"
+                            variant="contained"
+                            color="secondary"
+                            //sx={{ marginTop: 2 }}
+                            onClick={() => {
+                                navigate('/event-list')
+                            }}
+                        >
+                            Event List
+                        </Button>
+                        <Button
+                            id="backButton"
+                            className="ncButton"
+                            variant="contained"
+                            color="secondary"
+                            //sx={{ marginTop: 2 }}
+                            onClick={() => {
+                                navigate('/university-profile')
+                            }}
+                        >
+                            University Profile
+                        </Button>
+                        {/* <Nav className="nav-links">
                             <Nav.Link href="/account-details">Account Details</Nav.Link>
                             <Nav.Link href="/rso-list">RSO List</Nav.Link>
                             <Nav.Link href="/university-profile">University Profile</Nav.Link>
                             <Nav.Link href="/event-list">Event List</Nav.Link>
                             <Button className="logout-button" onClick={handleLogoutClick}>Logout</Button>
-                        </Nav>
+                        </Nav> */}
 
                     </div>
                 )}
