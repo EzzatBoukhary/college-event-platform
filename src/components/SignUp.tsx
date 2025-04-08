@@ -80,14 +80,14 @@ function SignUp() {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ userType, name, email, password })
                 });
 
                 response.then(async (data) => {
                     if(data.ok) {
                         const json = await data.json();
                         setSignUpResult('Account created successfully!');
-                        navigate('/');
+                        navigate('/account-details');
                     }
                     else {
                         const errorJson = await data.json();
@@ -100,14 +100,12 @@ function SignUp() {
                     }
                 });
 
-
                 console.log(response);
             }catch(error){
                 setSignUpResult('Failed to create account.');
             }
         }
     }
-
 
     return (
         <div style={{width: "100vw", height: "90vh", display: 'flex', alignItems: 'center', justifyItems: 'center' }}>
