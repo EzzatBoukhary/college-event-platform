@@ -155,7 +155,9 @@ router.get('/users/:UID', async (req, res) => {
   }
 });
 
+// 
 // Add University
+// this is not working, giving error Failed to create University
 router.post('/university/addUni', async (req, res) => {
   try {
 
@@ -187,9 +189,10 @@ router.post('/university/addUni', async (req, res) => {
 });
 
 // Add RSO
+// rso name, description, contact phone and email, members 5 emails. Get univID from user's email domain. Status is not needed.
+
 router.post('/rso/addRSO', async (req, res) => {
   try {
-
     // Extract values from the JSON body
     const {UnivID, Name, Status} = req.body;
 
@@ -218,6 +221,7 @@ router.post('/rso/addRSO', async (req, res) => {
 });
 
 // Join RSO
+// not working
 router.post('/rso/addRSOStudent', async (req, res) => {
   try {
 
@@ -249,6 +253,7 @@ router.post('/rso/addRSOStudent', async (req, res) => {
 });
 
 // Leave RSO
+// same error as join
 router.post('/rso/deleteRSOStudent', async (req, res) => {
   try {
 
@@ -280,6 +285,7 @@ router.post('/rso/deleteRSOStudent', async (req, res) => {
 });
 
 // Search RSOs
+// query string does not make sense. It should only have an RSO name as input
 router.get('/rso/searchRSOs', async (req, res) => {
   try {
     // Extract search parameters from the query string
@@ -345,7 +351,9 @@ router.get('/rso/searchRSOs', async (req, res) => {
 //     res.status(500).json({ error: 'Failed to create RSO' });
 //   }
 // });
+
 // Add Event
+// name, description, location, date, and type (public, private, RSO), contact email and phone
 router.post('/events/addEvent', async (req, res) => {
   try {
 
@@ -377,6 +385,7 @@ router.post('/events/addEvent', async (req, res) => {
 });
 
 // Search Events
+// input to this endpoint should only be the name of the event. The backend should filter out events that the user is not supposed to see based on their user type and the event type (public, private, RSO).
 router.get('/events/searchEvents', async (req, res) => {
   try {
 
@@ -486,6 +495,7 @@ router.get('/events/:EventID', async (req, res) => {
   });
 
 // Add Comment
+// Gives success but empty output with no message. Fix needed?
 router.post('/events/addComment', async (req, res) => {
   try {
 
@@ -517,6 +527,7 @@ router.post('/events/addComment', async (req, res) => {
 });
 
 // Get Comments
+// empty output currently. fix needed?
 router.get('/events/getComments', async (req, res) => {
   try {
 
