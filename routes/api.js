@@ -96,10 +96,39 @@ router.post('/login', async (req, res) => {
   }
 });
 
-  
-// Sign Up
-router.post('/signup', async (req, res) => {
+  router.get('/:UID', async (req, res) => {
   try {
+
+    
+
+    // Create the SQL query with a parameter
+    const query = 'SELECT * FROM Users WHERE UID=? LIMIT 1';
+
+    // Execute the query
+    const [rows] = await pool.execute(query, UID);
+
+    // Check if user exists
+    if (rows.length === 0) {
+      return res.status(400).json({
+        status: "failed",
+        //data: [],
+        message: "User not found.",
+      });
+    }
+
+    // Return the user
+    res.status(200).json({
+      message: 'User retrieved successfully',
+      user: rows[0]
+    });
+    // find user in database
+    res.end(); // just for safety
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    res.status(500).json({ error: 'Failed to log in user' });
+  }
+});
+
 
     // Extract values from the JSON body
     const { userType, name, email, password } = req.body;
