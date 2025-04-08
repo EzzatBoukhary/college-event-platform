@@ -36,13 +36,13 @@ interface LoginProps {
              });
 
              if (response.ok) {
-                 const json = await response.json();
+                 // const json = await response.json();
 
                  // Assuming the backend provides userId and a firstLogin flag in the response
-                 const userId = json.data.userId || json.data[0]._id;
+                 // const userId = json.data.userId || json.data[0]._id;
                 //  const isFirstLogin = json.data[0]?.firstLogin; // Replace with actual field name if different
 
-                 localStorage.setItem("userId", userId);
+                 // localStorage.setItem("userId", userId);
 
                  setLoginResult("Login Successful");
                  onLogin();
