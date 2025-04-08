@@ -58,7 +58,7 @@ interface LoginProps {
              } else {
                  const error = await response.json();
                  console.error('Login failed:', error.message);
-                 setLoginResult(error.message || "Login failed. Please try again.");
+                 setLoginResult(error.message);
              }
          } catch (error) {
              console.error('Error logging in:', error);
