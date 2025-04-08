@@ -10,6 +10,7 @@ html, body {
 .nc-navbar {
     background-color: #0F3874; /* Header background color */
     width: 100%; /* Ensures full width */
+    height: 75px;
     padding: 1vh 2vw; /* Adjust padding as needed */
     border: none;
     box-sizing: border-box;

@@ -10,8 +10,8 @@ interface LoginProps {
  function Login({ onLogin }: LoginProps) {
 
      const navigate = useNavigate();
-     const [Email, setEmail] = useState<string>('');
-     const [Password, setPassword] = useState<string>('');
+     const [email, setEmail] = useState<string>('');
+     const [password, setPassword] = useState<string>('');
      const [emailError, setEmailError] = useState<string>('');
      const [loginResult, setLoginResult] = useState<string>('');
 
@@ -21,7 +21,7 @@ interface LoginProps {
      }
 
      const doLogin = async () => {
-         if (!Email || !Password) {
+         if (!email || !password) {
              setLoginResult("Email and password are required");
              return;
          }
@@ -32,7 +32,7 @@ interface LoginProps {
                  headers: {
                      'Content-Type': 'application/json'
                  },
-                 body: JSON.stringify({ Email, Password })
+                 body: JSON.stringify({ email, password })
              });
 
              if (response.ok) {
@@ -96,7 +96,7 @@ interface LoginProps {
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    value={Email}
+                    value={email}
                     onChange={handleEmailChange}
                     error={!!emailError}
                     helperText={emailError}
@@ -109,7 +109,7 @@ interface LoginProps {
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    value={Password}
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
                 <Button
