@@ -37,6 +37,8 @@ interface LoginProps {
 
              if (response.ok) {
                  const json = await response.json();
+                 const userId = json.user.UID || json.data[0]._id;
+                 localStorage.setItem("userId", userId);
                  setLoginResult("Login Successful");
                  onLogin();
                  navigate('/account-details');
