@@ -94,11 +94,11 @@ function SignUp() {
                 if (response.ok) {
                     const json = await response.json();
                     setSignUpResult('Account created successfully!');
-                    navigate('/login');
+                    navigate('/');
                 } else {
                     const errorJson = await response.json();
-                    if (errorJson.message === 'User already exists.') {
-                        setEmailError('Email already exists. Please use a different email.');
+                    if (errorJson.message === 'Failed to create user') {
+                        setEmailError('Email already exists or there was a failure. Please try again or use a different email.');
                     } else {
                         setSignUpResult(errorJson.message || 'Failed to create account.');
                     }
