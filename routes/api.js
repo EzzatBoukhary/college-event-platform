@@ -55,21 +55,24 @@ router.get('/test', async(req, res) => {
 });
 
 // Login
-// POST endpoint to fetch a specific user by email from JSON body
-router.post('/login', async (req, res) => {
-    // make sure email and password are provided
+// GET endpoint to fetch a specific user by email from JSON body
+router.get('/login', async (req, res) => {
+  try {
+
+    // Check if request has a body
     const { email, password } = req.body;
-    if (!req.body || !req.body.email || !req.body.password) {
+    // make sure email and password are provided
+    if (!req.body || !req.body.email || !req.body.pass) {
       return res.status(400).json({ error: 'Email and password is required in request body' });
     }
     
     const userEmail = req.body.email;
 
     // Create the SQL query with a parameter
-    const query = 'SELECT * FROM Users WHERE email = ? LIMIT 1';
+    const query = 'SELECT * FROM Users WHERE email = ? AND Password=? LIMIT 1';
 
     // Execute the query
-    const [rows] = await pool.execute(query, [userEmail]);
+    const [rows] = await pool.execute(query, [userEmail, req.body.pass]);
 
     // Check if user exists
     if (rows.length === 0) {
