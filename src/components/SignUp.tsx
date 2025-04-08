@@ -134,7 +134,7 @@ function SignUp() {
                 }}
             >
                 <Typography variant="h4" className="inner-title" gutterBottom>
-                    Sign Up
+                    Sign Up bugged
                 </Typography>
                 <TextField
                     className="custom-textfield"
