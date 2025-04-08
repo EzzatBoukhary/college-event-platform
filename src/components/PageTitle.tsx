@@ -19,13 +19,14 @@ function PageTitle({ loggedIn, handleLogout }: PageTitleProps) {
     return (
         <Navbar className="nc-navbar" expand="lg">
             <div className="navbar-content">
-                <span className="navbar-title">Nutrition Compass</span>
+                <span className="navbar-title">Event Manager</span>
                 {loggedIn && (
                     <div className="ml-auto" style={{padding: 2}}>
                         <Nav className="nav-links">
                             <Nav.Link href="/account-details">Account Details</Nav.Link>
-                            <Nav.Link href="/userprofile">User Profile</Nav.Link>
-                            <Nav.Link href="/user-dashboard">User Dashboard</Nav.Link>
+                            <Nav.Link href="/rso-list">RSO List</Nav.Link>
+                            <Nav.Link href="/university-profile">University Profile</Nav.Link>
+                            <Nav.Link href="/event-list">Event List</Nav.Link>
                             <Button className="logout-button" onClick={handleLogoutClick}>Logout</Button>
                         </Nav>
 
