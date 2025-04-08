@@ -96,10 +96,36 @@ router.post('/login', async (req, res) => {
   }
 });
 
-  router.get('/:UID', async (req, res) => {
+router.get('/:signup', async (req, res) => {
   try {
+    // Extract values from the JSON body
+    const { userType, name, email, password } = req.body;
 
-    
+    // Validate that all required fields are present
+    if (!userType || !name || !email || !password) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Create the SQL query with parameterized values
+    const query = 'INSERT INTO Users(UserType, Name, Email, Password) VALUES (?, ?, ?, ?)';
+    const values = [userType, name, email, password];
+
+    // Execute the query
+    const [result] = await pool.execute(query, values);
+
+    // Return success response
+    res.status(201).json({
+      message: 'User created successfully',
+      userId: result.insertId,
+    });
+  } catch (error) {
+    console.error('Error inserting user:', error);
+    res.status(500).json({ error: 'Failed to create user' });
+  }
+});
+
+router.get('/:UID', async (req, res) => {
+  try {
 
     // Create the SQL query with a parameter
     const query = 'SELECT * FROM Users WHERE UID=? LIMIT 1';
@@ -124,35 +150,8 @@ router.post('/login', async (req, res) => {
     // find user in database
     res.end(); // just for safety
   } catch (error) {
-    console.error('Error logging in user:', error);
-    res.status(500).json({ error: 'Failed to log in user' });
-  }
-});
-
-
-    // Extract values from the JSON body
-    const { userType, name, email, password } = req.body;
-
-    // Validate that all required fields are present
-    if (!userType || !name || !email || !password) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Create the SQL query with parameterized values
-    const query = 'INSERT INTO Users(UserType, Name, Email, Password) VALUES (?, ?, ?, ?)';
-    const values = [userType, name, email, password];
-
-    // Execute the query
-    const [result] = await pool.execute(query, values);
-
-    // Return success response
-    res.status(201).json({
-      message: 'User created successfully',
-      userId: result.insertId,
-    });
-  } catch (error) {
-    console.error('Error inserting user:', error);
-    res.status(500).json({ error: 'Failed to create user' });
+    console.error('Error finding user:', error);
+    res.status(500).json({ error: 'Failed to find user' });
   }
 });
 
