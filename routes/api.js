@@ -62,7 +62,7 @@ router.post('/login', async (req, res) => {
     // Check if request has a body
     const { email, password } = req.body;
     // make sure email and password are provided
-    if (!req.body || !req.body.email || !req.body.pass) {
+    if (!req.body || !req.body.email || !req.body.password) {
       return res.status(400).json({ error: 'Email and password is required in request body' });
     }
     
