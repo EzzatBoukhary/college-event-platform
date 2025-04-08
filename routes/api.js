@@ -90,14 +90,15 @@ router.get('/login', async (req, res) => {
     });
     // find user in database
   
-    let match = password == user.password;
-    if (!match) {
-      return res.status(400).json({
-        status: "failed",
-        data: [],
-        message: "Invalid password.",
-      });
-    }
+    //based on bcrypt but we arent hashing passwords
+    // let match = password == user.password;
+    // if (!match) {
+    //   return res.status(400).json({
+    //     status: "failed",
+    //     data: [],
+    //     message: "Invalid password.",
+    //   });
+    // }
   
     // currently sends back user's email, id, and JWT issued to them
     res.status(200).json({
@@ -106,7 +107,12 @@ router.get('/login', async (req, res) => {
       message: "User logged in.",
     });
     res.end(); // just for safety
-  });
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    res.status(500).json({ error: 'Failed to log in user' });
+  }
+});
+
   
 // Sign Up
 router.post('/signup', async (req, res) => {
