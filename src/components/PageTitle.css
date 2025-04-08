@@ -36,13 +36,16 @@ html, body {
     transform: translateX(-50%); /* Center the text */
 }
 
-.navbar-img{
+/*.navbar-img{
     border-radius: 100px;
-    width: 75px; /* Set a fixed width */
+    width: 75px;  S
+     Set a fixed width 
     height: 75px;
-    margin-left: 10px;/* Set a fixed height to create a square */
-    margin-right: auto; /* Pushes the image to the far left */
-}
+    margin-left: 10px;
+     Set a fixed height to create a square
+    margin-right: auto; 
+     Pushes the image to the far left
+}*/
 
 @media (max-width: 768px) {
     .navbar-title {
