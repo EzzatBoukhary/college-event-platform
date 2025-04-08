@@ -86,7 +86,7 @@ interface LoginProps {
                 }}
             >
                 <Typography variant="h4" className="inner-title" gutterBottom>
-                    test
+                    Sign In
                 </Typography>
                 <TextField
                     className="custom-textfield"
