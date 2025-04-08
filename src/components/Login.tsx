@@ -40,20 +40,21 @@ interface LoginProps {
 
                  // Assuming the backend provides userId and a firstLogin flag in the response
                  const userId = json.data.userId || json.data[0]._id;
-                 const isFirstLogin = json.data[0]?.firstLogin; // Replace with actual field name if different
+                //  const isFirstLogin = json.data[0]?.firstLogin; // Replace with actual field name if different
 
                  localStorage.setItem("userId", userId);
 
                  setLoginResult("Login Successful");
                  onLogin();
+                 navigate('/account-details');
 
-                 if (isFirstLogin) {
-                     // Navigate to user profile for first-time login
-                     navigate('/userprofile');
-                 } else {
-                     // Navigate to user dashboard for regular login
-                     navigate('/user-dashboard');
-                 }
+                //  if (isFirstLogin) {
+                //      // Navigate to user profile for first-time login
+                //      navigate('/account-details');
+                //  } else {
+                //      // Navigate to user dashboard for regular login
+                //      navigate('/event-list');
+                //  }
              } else {
                  const error = await response.json();
                  console.error('Login failed:', error.message);
