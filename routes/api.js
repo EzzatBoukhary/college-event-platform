@@ -96,7 +96,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.get('/:signup', async (req, res) => {
+router.get('/signup', async (req, res) => {
   try {
     // Extract values from the JSON body
     const { userType, name, email, password } = req.body;
