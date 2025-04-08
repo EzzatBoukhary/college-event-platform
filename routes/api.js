@@ -459,29 +459,17 @@ router.get('/eventContact', async (req, res) => {
 
 // Get Event Details
 router.get('/eventDetails/:EventID', async (req, res) => {
-  try {
+  const EventID = req.params.EventID;
 
-    const EventID = req.params.EventID;
-
-    // Validate that all required fields are present
-    if (!EventID) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Create the SQL query with parameterized values
-    const query = 'SELECT * FROM Events WHERE EventID=? LIMIT 1';
-    const values = [EventID];
-
-    // Execute the query
-    const [result] = await pool.execute(query, values);
-
-    // Return success response
-    res.status(201).json(result);
-
-  } catch (error) {
-    console.error('Error inserting Event:', error);
-    res.status(500).json({ error: 'Failed to create Event' });
+  if (!EventID) {
+    return res.status(400).json({ error: 'Missing required fields' });
   }
+
+  const query = 'SELECT * FROM Events WHERE EventID=? LIMIT 1';
+  const values = [EventID];
+
+  const [result] = await pool.execute(query, values);
+  res.status(200).json(result);
 });
 
 // Add Rating
