@@ -11,7 +11,7 @@ function EventList() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch("http://155.138.217.239:5000/api/events", {
+        const response = await fetch("http://155.138.217.239:5000/api/events/searchEvents", {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -47,7 +47,7 @@ function EventList() {
   const filteredEvents = events.filter((event) => {
     const lowerSearch = searchTerm.toLowerCase();
     return (
-      (event.eventName && event.eventName.toLowerCase().includes(lowerSearch)) ||
+      (event.Name && event.Name.toLowerCase().includes(lowerSearch)) ||
       (event.description && event.description.toLowerCase().includes(lowerSearch))
     );
   });
