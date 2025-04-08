@@ -8,74 +8,67 @@ function EventList() {
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await fetch("http://155.138.217.239:5000/api/events/searchEvents", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          // Assuming the API returns an object with the events in data.data
-          setEvents(data.data || []);
-        } else {
-          setStatusMessage("Failed to fetch events");
-        }
-      } catch (error) {
-        console.error("Error fetching events:", error);
-        setStatusMessage("An error occurred while fetching events");
-      } finally {
-        setIsLoading(false);
+  // Fetch events from the backend using the searchEvents endpoint
+  const fetchEvents = async (eventName: string) => {
+    setIsLoading(true);
+    try {
+      // Build query param if search term is provided, otherwise leave it empty.
+      const queryParam = eventName ? `?EventName=${encodeURIComponent(eventName)}` : "";
+      const response = await fetch(`http://155.138.217.239:5000/api/events/searchEvents`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        // The endpoint returns an array of events
+        setEvents(data);
+      } else {
+        setStatusMessage("Failed to fetch events");
       }
-    };
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      setStatusMessage("An error occurred while fetching events");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    fetchEvents();
+  // Fetch all events on initial render
+  useEffect(() => {
+    fetchEvents("");
   }, []);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+  // Handle form submit for searching events
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    fetchEvents(searchTerm);
   };
 
+  // When a user clicks an event, save its id and redirect to EventDetails page.
   const handleEventClick = (eventId: string) => {
     localStorage.setItem("eventId", eventId);
-    // Redirect to EventDetails page (update the URL as needed)
-    window.location.href = "/EventDetails";
+    window.location.href = "/event-details";
   };
-
-  const filteredEvents = events.filter((event) => {
-    const lowerSearch = searchTerm.toLowerCase();
-    return (
-      (event.Name && event.Name.toLowerCase().includes(lowerSearch)) ||
-      (event.description && event.description.toLowerCase().includes(lowerSearch))
-    );
-  });
 
   return (
     <div id="event-list-container">
       <h2 id="event-list-title">Event List</h2>
-      <form
-        id="event-search-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
+      <form id="event-search-form" onSubmit={handleSearchSubmit}>
         <label>Search for Events</label>
         <input
           type="text"
           id="search-bar"
           placeholder="Search Event List"
           value={searchTerm}
-          onChange={handleSearchChange}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </form>
       {isLoading ? (
         <Typography variant="body1">Loading events...</Typography>
       ) : (
         <div id="events-container">
-          {filteredEvents.length > 0 ? (
-            filteredEvents.map((event) => (
+          {events.length > 0 ? (
+            events.map((event) => (
               <Box
                 key={event.id}
                 className="event-item"
@@ -89,10 +82,14 @@ function EventList() {
                 }}
                 onClick={() => handleEventClick(event.id)}
               >
-                <Typography variant="h6">{event.eventName}</Typography>
-                <Typography variant="body2">{event.description}</Typography>
+                <Typography variant="h6">
+                  {event.EventName}
+                </Typography>
+                <Typography variant="body2">
+                  {event.description || event.Description}
+                </Typography>
                 <Typography variant="caption">
-                  {event.eventDate} at {event.eventTime}
+                  {event.EventDate} at {event.EventTime}
                 </Typography>
               </Box>
             ))
