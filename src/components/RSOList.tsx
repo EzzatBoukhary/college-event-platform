@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import "./Lists.css";
 import { Box, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 function RSOList() {
   const [RSOs, setRSOs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const navigate = useNavigate();
 
   // Fetch RSOs from the backend using the searchRSOs endpoint
   const fetchRSOs = async (rsoName: string) => {
@@ -47,13 +49,13 @@ function RSOList() {
   // When a user clicks an RSO, save its id and redirect to RSODetails page.
   const handleEventClick = (eventId: string) => {
     localStorage.setItem("eventId", eventId);
-    window.location.href = "/rso-details";
+    navigate("/rso-details");
   };
 
   return (
     <div id="event-list-container">
       <h2 id="event-list-title">RSO List</h2>
-      <form id="rso-search-form" onSubmit={handleSearchSubmit}>
+      <form id="event-search-form" onSubmit={handleSearchSubmit}>
         <label>Search for RSOs</label>
         <input
           type="text"

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import "./Lists.css";
 import { Box, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 function EventList() {
   const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const navigate = useNavigate();
 
   // Fetch events from the backend using the searchEvents endpoint
   const fetchEvents = async (eventName: string) => {
@@ -47,7 +49,7 @@ function EventList() {
   // When a user clicks an event, save its id and redirect to EventDetails page.
   const handleEventClick = (eventId: string) => {
     localStorage.setItem("eventId", eventId);
-    window.location.href = "/event-details";
+    navigate("/event-details");
   };
 
   return (
