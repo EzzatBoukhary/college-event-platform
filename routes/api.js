@@ -458,11 +458,10 @@ router.get('/eventContact', async (req, res) => {
 });
 
 // Get Event Details
-router.get('/eventDetails', async (req, res) => {
+router.get('/eventDetails/:EventID', async (req, res) => {
   try {
 
-    // Extract values from the JSON body
-    const {EventID} = req.body;
+    const EventID = req.params.EventID;
 
     // Validate that all required fields are present
     if (!EventID) {
