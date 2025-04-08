@@ -89,23 +89,6 @@ router.post('/login', async (req, res) => {
       user: rows[0]
     });
     // find user in database
-  
-    //based on bcrypt but we arent hashing passwords
-    // let match = password == user.password;
-    // if (!match) {
-    //   return res.status(400).json({
-    //     status: "failed",
-    //     data: [],
-    //     message: "Invalid password.",
-    //   });
-    // }
-  
-    // currently sends back user's email, id, and JWT issued to them
-    res.status(200).json({
-      status: "success",
-    //data: [{ email: user.email, _id: user._id/*, token: token */}], // returns token too
-      message: "User logged in.",
-    });
     res.end(); // just for safety
   } catch (error) {
     console.error('Error logging in user:', error);
