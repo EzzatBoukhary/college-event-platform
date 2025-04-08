@@ -486,7 +486,7 @@ router.get('/events/:EventID', async (req, res) => {
   });
 
 // Add Comment
-router.post('events/addComment', async (req, res) => {
+router.post('/events/addComment', async (req, res) => {
   try {
 
     // Extract values from the JSON body
@@ -517,7 +517,7 @@ router.post('events/addComment', async (req, res) => {
 });
 
 // Get Comments
-router.get('events/getComments', async (req, res) => {
+router.get('/events/getComments', async (req, res) => {
   try {
 
     // Extract values from the JSON body
@@ -548,7 +548,7 @@ router.get('events/getComments', async (req, res) => {
 });
 
 // Edit Comments
-router.post('events/editComment', async (req, res) => {
+router.post('/events/editComment', async (req, res) => {
   try {
 
     // Extract values from the JSON body

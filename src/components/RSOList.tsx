@@ -18,8 +18,8 @@ function RSOList() {
 
         if (response.ok) {
           const data = await response.json();
-          // Assuming the API returns an object with the events in data.data
-          setRSOs(data.data || []);
+          // Assuming the API returns an object with the events in data.rows
+          setRSOs(data.rows || []);
         } else {
           setStatusMessage("Failed to fetch RSOs");
         }
