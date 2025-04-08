@@ -26,7 +26,7 @@ function AccountDetails() {
             }
 
             try {
-                const response = await fetch(`http://155.138.217.239:5000/api/${userId}`, {
+                const response = await fetch(`http://155.138.217.239:5000/api/users/${userId}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
                 });

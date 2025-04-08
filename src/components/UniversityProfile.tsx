@@ -23,7 +23,7 @@ function UniversityProfile() {
             }
 
             try {
-                const response = await fetch(`http://155.138.217.239:5000/api/${uniId}`, {
+                const response = await fetch(`http://155.138.217.239:5000/api/university/${uniId}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
                 });

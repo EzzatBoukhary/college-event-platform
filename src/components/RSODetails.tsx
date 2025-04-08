@@ -24,7 +24,7 @@ function RSODetails() {
             }
 
             try {
-                const response = await fetch(`http://155.138.217.239:5000/api/${rsoId}`, {
+                const response = await fetch(`http://155.138.217.239:5000/api/rso/${rsoId}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
                 });
