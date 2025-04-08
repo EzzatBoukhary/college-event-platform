@@ -33,12 +33,12 @@ function AccountDetails() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    const user = data.data; // Adjust if backend wraps data differently
+                    const user = data.user; // Adjust if backend wraps data differently
                     console.log('Fetched user details:', user);
 
-                    setName(user.name || '');
-                    setEmail(user.email || '');
-                    setUserType(user.userType || '');
+                    setName(user.Name || '');
+                    setEmail(user.Email || '');
+                    setUserType(user.UserType || '');
                 } else {
                     setStatusMessage('Failed to fetch user details');
                 }
