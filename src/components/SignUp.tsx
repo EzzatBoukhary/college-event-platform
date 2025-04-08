@@ -83,30 +83,26 @@ function SignUp() {
             try{
                 //api stuff:
                 // response will be the call
-                const response =  fetch('http://155.138.217.239:5000/api/signup', {
+                const response =  await fetch('http://155.138.217.239:5000/api/signup', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ userType, name, email, password })
                 });
-
-                response.then(async (data) => {
-                    if(data.ok) {
-                        const json = await data.json();
-                        setSignUpResult('Account created successfully!');
-                        navigate('/account-details');
+                    
+                if (response.ok) {
+                    const json = await response.json();
+                    setSignUpResult('Account created successfully!');
+                    navigate('/login');
+                } else {
+                    const errorJson = await response.json();
+                    if (errorJson.message === 'User already exists.') {
+                        setEmailError('Email already exists. Please use a different email.');
+                    } else {
+                        setSignUpResult(errorJson.message || 'Failed to create account.');
                     }
-                    else {
-                        const errorJson = await data.json();
-                        if (errorJson.message === 'User already exists.') {
-                            setEmailError('Email already exists. Please use a different email.');
-                        }
-                        else {
-                            setSignUpResult(errorJson.message || 'Failed to create account.');
-                        }
-                    }
-                });
+                };
 
                 console.log(response);
             }catch(error){
