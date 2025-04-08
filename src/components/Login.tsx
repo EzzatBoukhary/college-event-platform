@@ -27,7 +27,7 @@ interface LoginProps {
          }
 
          try {
-             const response = await fetch('http://155.138.217.239:5000/login', {
+             const response = await fetch('http://155.138.217.239:5000/api/login', {
                  method: 'POST',
                  headers: {
                      'Content-Type': 'application/json'
@@ -37,7 +37,6 @@ interface LoginProps {
 
              if (response.ok) {
                  const json = await response.json();
-
                  setLoginResult("Login Successful");
                  onLogin();
                  navigate('/account-details');

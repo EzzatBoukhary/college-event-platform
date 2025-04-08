@@ -83,7 +83,7 @@ function SignUp() {
             try{
                 //api stuff:
                 // response will be the call
-                const response =  fetch('http://155.138.217.239:5000/signup', {
+                const response =  fetch('http://155.138.217.239:5000/api/signup', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

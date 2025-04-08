@@ -27,7 +27,7 @@ function EventDetails() {
             }
 
             try {
-                const response = await fetch(`http://155.138.217.239:5000/${eventId}`, {
+                const response = await fetch(`http://155.138.217.239:5000/api/${eventId}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
                 });
