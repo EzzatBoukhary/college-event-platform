@@ -450,7 +450,7 @@ router.get('/events/:EventID', async (req, res) => {
   "UID": 12,
   "Rating": 5
 } */
-  router.post('events/addRating', async (req, res) => {
+  router.post('/events/addRating', async (req, res) => {
     try {
       const { EventID, UID, Rating } = req.body;
   
