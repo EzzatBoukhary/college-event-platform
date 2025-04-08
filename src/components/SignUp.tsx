@@ -69,6 +69,14 @@ function SignUp() {
             setConfirmPasswordError('');
         }
 
+        // check user type:
+        if(userType == "") {
+            setUserTypeError("Must choose a user type");
+            valid = false;
+        } else {
+            setUserTypeError("");
+        }
+
         //call API if all is correct:
         if(valid){
             //API call stuff, if it in invalid call, make Creation = false;
