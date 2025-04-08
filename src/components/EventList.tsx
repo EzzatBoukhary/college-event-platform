@@ -12,8 +12,7 @@ function EventList() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    // Replace the URL with your actual endpoint if needed.
-    fetch("/api/events")
+    fetch("http://155.138.217.239:5000/api/events/searchEvents")
       .then((response) => response.json())
       .then((data) => {
         setEvents(data);
