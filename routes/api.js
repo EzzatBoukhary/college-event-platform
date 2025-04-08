@@ -72,7 +72,7 @@ router.post('/login', async (req, res) => {
     const query = 'SELECT * FROM Users WHERE email = ? AND Password=? LIMIT 1';
 
     // Execute the query
-    const [rows] = await pool.execute(query, [userEmail, req.body.pass]);
+    const [rows] = await pool.execute(query, [req.body.email, req.body.password]);
 
     // Check if user exists
     if (rows.length === 0) {
