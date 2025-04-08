@@ -1,31 +1,56 @@
 import React, { useState, useEffect } from "react";
 import "./Lists.css";
-
-interface Event {
-  id: number;
-  name: string;
-  description: string;
-}
+import { Box, Typography } from "@mui/material";
 
 function EventList() {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [events, setEvents] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [statusMessage, setStatusMessage] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
-    fetch("http://155.138.217.239:5000/api/events/searchEvents")
-      .then((response) => response.json())
-      .then((data) => {
-        setEvents(data);
-      })
-      .catch((error) => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch("http://155.138.217.239:5000/api/events", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Assuming the API returns an object with the events in data.data
+          setEvents(data.data || []);
+        } else {
+          setStatusMessage("Failed to fetch events");
+        }
+      } catch (error) {
         console.error("Error fetching events:", error);
-      });
+        setStatusMessage("An error occurred while fetching events");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
   }, []);
 
-  // Filter events based on the search term (case insensitive).
-  const filteredEvents = events.filter((event) =>
-    event.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleEventClick = (eventId: string) => {
+    localStorage.setItem("eventId", eventId);
+    // Redirect to EventDetails page (update the URL as needed)
+    window.location.href = "/EventDetails";
+  };
+
+  const filteredEvents = events.filter((event) => {
+    const lowerSearch = searchTerm.toLowerCase();
+    return (
+      (event.eventName && event.eventName.toLowerCase().includes(lowerSearch)) ||
+      (event.description && event.description.toLowerCase().includes(lowerSearch))
+    );
+  });
 
   return (
     <div id="event-list-container">
@@ -36,27 +61,51 @@ function EventList() {
           e.preventDefault();
         }}
       >
-        <label htmlFor="search-bar">Search for Events</label>
+        <label>Search for Events</label>
         <input
           type="text"
           id="search-bar"
           placeholder="Search Event List"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearchChange}
         />
       </form>
-      <div id="event-items">
-        {filteredEvents.length > 0 ? (
-          filteredEvents.map((event) => (
-            <div key={event.id} className="event-item">
-              <h3>{event.name}</h3>
-              <p>{event.description}</p>
-            </div>
-          ))
-        ) : (
-          <p>No events found.</p>
-        )}
-      </div>
+      {isLoading ? (
+        <Typography variant="body1">Loading events...</Typography>
+      ) : (
+        <div id="events-container">
+          {filteredEvents.length > 0 ? (
+            filteredEvents.map((event) => (
+              <Box
+                key={event.id}
+                className="event-item"
+                sx={{
+                  border: "1px solid #0F3874",
+                  borderRadius: 2,
+                  padding: 2,
+                  margin: 1,
+                  width: "80%",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleEventClick(event.id)}
+              >
+                <Typography variant="h6">{event.eventName}</Typography>
+                <Typography variant="body2">{event.description}</Typography>
+                <Typography variant="caption">
+                  {event.eventDate} at {event.eventTime}
+                </Typography>
+              </Box>
+            ))
+          ) : (
+            <Typography variant="body1">No events found.</Typography>
+          )}
+        </div>
+      )}
+      {statusMessage && (
+        <Typography variant="body2" color="error">
+          {statusMessage}
+        </Typography>
+      )}
     </div>
   );
 }
