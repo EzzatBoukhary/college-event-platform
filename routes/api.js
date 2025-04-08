@@ -131,7 +131,7 @@ router.get('/:UID', async (req, res) => {
     const query = 'SELECT * FROM Users WHERE UID=? LIMIT 1';
 
     // Execute the query
-    const [rows] = await pool.execute(query, UID);
+    const [rows] = await pool.execute(query, req.params.UID);
 
     // Check if user exists
     if (rows.length === 0) {

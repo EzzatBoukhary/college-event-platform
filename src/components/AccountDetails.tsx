@@ -3,9 +3,10 @@ import { Button, TextField, Typography, Box } from '@mui/material';
 import './GeneralDetails.css';
 
 function AccountDetails() {
-    const [firstName, setFirstName] = useState<string>('');
-    const [lastName, setLastName] = useState<string>('');
+    const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
+    const [userType, setUserType] = useState<string>('');
+    const [userTypeError, setUserTypeError] = useState<string>('');
     const [resetPassword, setResetPassword] = useState<string>('');
     const [confirmResetPassword, setConfirmResetPassword] = useState<string>('');
     const [confirmPasswordError, setConfirmPasswordError] = useState<string>('');
@@ -35,9 +36,9 @@ function AccountDetails() {
                     const user = data.data; // Adjust if backend wraps data differently
                     console.log('Fetched user details:', user);
 
-                    setFirstName(user.firstName || '');
-                    setLastName(user.lastName || '');
+                    setName(user.name || '');
                     setEmail(user.email || '');
+                    setUserType(user.userType || '');
                 } else {
                     setStatusMessage('Failed to fetch user details');
                 }
@@ -64,6 +65,11 @@ function AccountDetails() {
         }
     };
 
+    const handleUserType = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setUserType(e.target.value);
+        setUserTypeError('');
+    };
+
     const handleResetPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setResetPassword(e.target.value);
     };
@@ -77,28 +83,30 @@ function AccountDetails() {
         // Data for resetting the password
         const passwordResetData = {
             userId,
+            name,
+            userType,
             newPassword: resetPassword,
             confirmNewPassword: confirmResetPassword,
         };
 
-        try {
-            // Call the reset password endpoint
-            const response = await fetch('https://155.138.217.239:5000/reset', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(passwordResetData),
-            });
+        // try {
+        //     // Call the reset password endpoint
+        //     const response = await fetch('https://155.138.217.239:5000/api/reset', {
+        //         method: 'POST',
+        //         headers: { 'Content-Type': 'application/json' },
+        //         body: JSON.stringify(passwordResetData),
+        //     });
 
-            if (response.ok) {
-                setStatusMessage('Password reset successfully!');
-            } else {
-                const errorData = await response.json();
-                setStatusMessage(errorData.message || 'Failed to reset password');
-            }
-        } catch (error) {
-            console.error('Error resetting password:', error);
-            setStatusMessage('An error occurred while resetting the password');
-        }
+        //     if (response.ok) {
+        //         setStatusMessage('Password reset successfully!');
+        //     } else {
+        //         const errorData = await response.json();
+        //         setStatusMessage(errorData.message || 'Failed to reset password');
+        //     }
+        // } catch (error) {
+        //     console.error('Error resetting password:', error);
+        //     setStatusMessage('An error occurred while resetting the password');
+        // }
     };
 
 
@@ -129,6 +137,19 @@ function AccountDetails() {
                     <Typography variant="body1">Loading...</Typography>
                 ) : (
                     <>
+                        <TextField
+                            className="custom-textfield"
+                            id="name"
+                            placeholder="Name"
+                            type="name"
+                            variant="outlined"
+                            margin="normal"
+                            fullWidth
+                            value={name}
+                            inputProps={{
+                                readOnly: true, // Makes the email field read-only
+                            }}
+                        />
                         <TextField
                             className="custom-textfield"
                             id="Email"
@@ -166,6 +187,21 @@ function AccountDetails() {
                             error={!!confirmPasswordError}
                             helperText={confirmPasswordError}
                         />
+                        <div className="form-group">
+                            <label htmlFor="userType">User Type</label>
+                            <select
+                                id="userType"
+                                value={userType}
+                                onChange={handleUserType}
+                                className={`form-control ${userTypeError ? 'is-invalid' : ''}`}
+                            >
+                            <option value="">Select User Type</option>
+                            <option value="Student">Student</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Super Admin">Super Admin</option>
+                            </select>
+                                {userTypeError && <div className="invalid-feedback">{userTypeError}</div>}
+                        </div>
                         <Button
                             id="SaveChanges"
                             className="ncButton"
