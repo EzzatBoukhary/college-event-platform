@@ -57,38 +57,67 @@ router.get('/test', async(req, res) => {
 // Login
 // POST endpoint to fetch a specific user by email from JSON body
 router.post('/login', async (req, res) => {
-  try {
-
-    // Check if request has a body
-    if (!req.body || !req.body.email) {
-      return res.status(400).json({ error: 'Email is required in request body' });
+    // make sure email and password are provided
+    const { email, password } = req.body;
+    if (!req.body.email || !req.body.password) {
+      return res.status(400).json({
+        status: "failed",
+        data: [],
+        message: "Email and password required.",
+      });
     }
-
-    // Grab Email from JSON body
-    const userEmail = req.body.email;
-
-    // Create the SQL query with a parameter
-    const query = 'SELECT * FROM Users WHERE email = ? LIMIT 1';
-
-    // Execute the query
-    const [rows] = await pool.execute(query, [userEmail]);
-
-    // Check if user exists
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
+  
+    // find user in database
+    const user = await User.findOne({ email: email }).select("+password"); // force select password w/ +
+    if (!user) {
+      // user not found
+      return res.status(400).json({
+        status: "failed",
+        data: [],
+        message: "User not found.",
+      });
     }
-
-    // Return the user
+  
+    // now have user, compare passwords using bcrypt
+    let match = await compare(password, user.password);
+    if (!match) {
+      return res.status(400).json({
+        status: "failed",
+        data: [],
+        message: "Invalid password.",
+      });
+    }
+  
+    // Check if it's the user's first login
+    const isFirstLogin = user.firstLogin;
+  
+    // Update firstLogin to false for subsequent logins
+    if (isFirstLogin) {
+      user.firstLogin = false;
+      await user.save();
+    }
+  
+    // // generate token and send to user
+    // // COOKIE HERE
+    // // SAVED AS "token"
+    // // EXPIRES after 1 hour
+    // const token = genUserToken(user);
+    // res.cookie("token", token, {
+    //   maxAge: 60 * 60 * 1000, // 1 hour
+    //   httpOnly: true,
+    //   // secure: true, // once we get https, re-enable
+    //   SameSite: "None", // for cross-site cookies
+    // });
+  
+    // currently sends back user's email, id, and JWT issued to them
     res.status(200).json({
-      message: 'User retrieved successfully',
-      user: rows[0]
+      status: "success",
+    data: [{ email: user.email, _id: user._id, firstLogin: isFirstLogin/*, token: token */}], // returns token too
+      message: "User logged in.",
     });
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ error: 'Failed to retrieve user' });
-  }
-});
-
+    res.end(); // just for safety
+  });
+  
 // Sign Up
 router.post('/signup', async (req, res) => {
   try {
