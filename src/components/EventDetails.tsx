@@ -37,7 +37,7 @@ function EventDetails() {
                     const event = data[0]; // Adjust if backend wraps data differently
                     console.log('Fetched event details:', event);
 
-                    setEventName(event.EventName);
+                    setEventName(event.EventName || '');
                     //setRSO(event.RSO || '');
                     //setEventType(event.EventType || '');
                     setDescription(event.Description || '');
