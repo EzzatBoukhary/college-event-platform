@@ -41,7 +41,7 @@
                       <Route path="/rso-profile" element={<RSOProfilePage />} />
                       <Route path="/rso-list" element={<RSOListPage />} />
                       <Route path="/rso-details" element={<RSODetailsPage />} />
-                      <Route path="/create-rso" element={<RSODetailsPage />} />
+                      <Route path="/create-rso" element={<CreateRSOPage />} />
                       <Route path="/event-list" element={<EventListPage />} />
                       <Route path="/event-details" element={<EventDetailsPage />} />
                       {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} /> */}
