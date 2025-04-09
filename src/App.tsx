@@ -14,6 +14,7 @@
   import EventDetailsPage from './pages/EventDetailsPage';
   import CreateRSOPage from './pages/CreateRSOPage';
   import CreateEventPage from './pages/CreateEventPage';
+import PendingEventsPage from './pages/PendingEventsPage';
 
 
   function App() {
