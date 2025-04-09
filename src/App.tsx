@@ -13,6 +13,7 @@
   import EventListPage from './pages/EventListPage';
   import EventDetailsPage from './pages/EventDetailsPage';
   import CreateRSOPage from './pages/CreateRSOPage';
+  import CreateEventPage from './pages/CreateEventPage';
 
 
   function App() {
@@ -44,6 +45,7 @@
                       <Route path="/create-rso" element={<CreateRSOPage />} />
                       <Route path="/event-list" element={<EventListPage />} />
                       <Route path="/event-details" element={<EventDetailsPage />} />
+                      <Route path="/create-event" element={<CreateEventPage />} />
                       {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} /> */}
                       {/* You can add more routes here */}
                   </Routes>
