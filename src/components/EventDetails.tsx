@@ -40,11 +40,11 @@ function EventDetails() {
                     setEventName(event.EventName || '');
                     //setRSO(event.RSO || '');
                     //setEventType(event.EventType || '');
-                    setDescription(event.Description || '');
-                    setEventDate(event.EventDate || '');
-                    setEventTime(event.EventTime || '');
-                    setContactEmail(event.ContactEmail || '');
-                    setContactPhone(event.ContactPhone || '');
+                    // setDescription(event.Description || '');
+                    // setEventDate(event.EventDate || '');
+                    // setEventTime(event.EventTime || '');
+                    // setContactEmail(event.ContactEmail || '');
+                    // setContactPhone(event.ContactPhone || '');
 
                 } else {
                     setStatusMessage('Failed to fetch event details');
