@@ -27,3 +27,13 @@
     border-radius: 15px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
 }
+
+#createButton{
+    background-color: #0F3874;
+    color: #E2D5C4;
+    border: 1px solid #E2D5C4;
+}
+
+#createButton:hover {
+    background-color: #092247;
+}

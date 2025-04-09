@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Lists.css";
-import { Box, Typography } from "@mui/material";
+import { Button, Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 function RSOList() {
@@ -9,6 +9,8 @@ function RSOList() {
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const navigate = useNavigate();
+
+  const userType = localStorage.getItem("userType") || "student";
 
   // Fetch RSOs from the search endpoint using UID and search term
   const fetchRsos = async () => {
@@ -120,6 +122,20 @@ function RSOList() {
         <Typography variant="body2" color="error">
           {statusMessage}
         </Typography>
+      )}
+      {(userType === "admin" || userType === "superadmin") && (
+        <Button
+          id="createButton"
+          className="ncButton"
+          variant="contained"
+          color="secondary"
+          sx={{ marginTop: 2 }}
+          onClick={() => {
+            navigate('/create-rso');
+          }}
+        >
+          Create RSO
+        </Button>
       )}
     </div>
   );

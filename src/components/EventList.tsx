@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Lists.css";
-import { Box, Typography } from "@mui/material";
+import { Button, Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 function EventList() {
@@ -125,6 +125,18 @@ function EventList() {
           {statusMessage}
         </Typography>
       )}
+      <Button
+        id="createButton"
+        className="ncButton"
+        variant="contained"
+        color="secondary"
+        sx={{ marginTop: 2 }}
+        onClick={() => {
+        navigate('/event-details')
+        }}
+        >
+          Create Event
+        </Button>
     </div>
   );
 }

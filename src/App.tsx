@@ -12,6 +12,8 @@
   import RSODetailsPage from './pages/RSODetailsPage';
   import EventListPage from './pages/EventListPage';
   import EventDetailsPage from './pages/EventDetailsPage';
+  import CreateRSOPage from './pages/CreateRSOPage';
+
 
   function App() {
       const [loggedIn, setLoggedIn] = React.useState(() => {
@@ -39,6 +41,7 @@
                       <Route path="/rso-profile" element={<RSOProfilePage />} />
                       <Route path="/rso-list" element={<RSOListPage />} />
                       <Route path="/rso-details" element={<RSODetailsPage />} />
+                      <Route path="/create-rso" element={<RSODetailsPage />} />
                       <Route path="/event-list" element={<EventListPage />} />
                       <Route path="/event-details" element={<EventDetailsPage />} />
                       {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} /> */}
