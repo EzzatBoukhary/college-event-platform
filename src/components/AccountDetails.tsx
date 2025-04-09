@@ -123,7 +123,7 @@ function AccountDetails() {
                     border: '8px solid #0F3874',
                     borderRadius: 2,
                     boxShadow: 3,
-                    width: '200vw',
+                    width: '600vw',
                     height: '60vh',
                     backgroundColor: 'rgba(15, 56, 116, 0.85)',
                     overflowY: 'auto',
