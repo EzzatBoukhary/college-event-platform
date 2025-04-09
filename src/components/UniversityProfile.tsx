@@ -30,13 +30,13 @@ function UniversityProfile() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    const uni = data.data; // Adjust if backend wraps data differently
+                    const uni = data.university; // Adjust if backend wraps data differently
                     console.log('Fetched user details:', uni);
 
-                    setUniName(uni.uniName || '');
-                    setLocation(uni.location || '');
-                    setDescription(uni.description || '');
-                    setStudentNum(uni.studentNum || '');
+                    setUniName(uni.Name || '');
+                    setLocation(uni.Location || '');
+                    setDescription(uni.Description || '');
+                    setStudentNum(uni.NumStudents || '');
                 } else {
                     setStatusMessage('Failed to fetch University details');
                 }
