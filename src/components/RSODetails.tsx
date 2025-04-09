@@ -34,11 +34,11 @@ function RSODetails() {
                     const rso = data.data; // Adjust if backend wraps data differently
                     console.log('Fetched event details:', event);
 
-                    setRSOName(rso.RSOName || '');
+                    setRSOName(rso.Name || '');
                     // setUpcomingEvents(event.eventType || '');
-                    setDescription(rso.description || '');
-                    setContactPhone(rso.contactPhone || '');
-                    setContactEmail(rso.contactEmail || '');
+                    //setDescription(rso.Description || '');
+                    setContactPhone(rso.ContactPhone || '');
+                    setContactEmail(rso.ContactEmail || '');
 
                 } else {
                     setStatusMessage('Failed to fetch event details');
