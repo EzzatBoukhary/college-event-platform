@@ -418,55 +418,51 @@ router.post('/events/addEvent', async (req, res) => {
 router.get('/events/searchEvents', async (req, res) => {
   const { UID, EventName } = req.query;
 
-  if (!UID) {
-    return res.status(400).json({ error: 'UID is required' });
-  }
+  if (!UID) return res.status(400).json({ error: 'UID is required' });
 
   try {
-    // Step 1: Get user role and university
-    const [[user]] = await pool.execute(
-      'SELECT UserType, UnivID FROM Users WHERE UID = ?',
-      [UID]
-    );
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    // Get user details
+    const [[user]] = await pool.execute('SELECT UserType, UnivID FROM Users WHERE UID = ?', [UID]);
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // Step 2: Build base query and params
-    let baseQuery = 'SELECT DISTINCT E.* FROM Events E';
-    let whereClauses = [];
-    let values = [];
+    let query = `SELECT DISTINCT E.* FROM Events E `;
+    const values = [];
 
-    // Optional name filter
-    if (EventName) {
-      whereClauses.push('E.EventName LIKE ?');
-      values.push(`%${EventName}%`);
-    }
+    // Base filter: event name (partial match)
+    query += 'WHERE E.EventName LIKE ? ';
+    values.push(`%${EventName || ''}%`);
 
-    // Step 3: Add access control based on user type
     if (user.UserType === 'Student') {
-      whereClauses.push(`(
-        E.EventType = 'Public'
-        OR (E.EventType = 'Private' AND E.UnivID = ?)
-        OR (E.EventType = 'RSO' AND EXISTS (
-          SELECT 1 FROM Students_RSOs SR
-          JOIN RSOs R ON SR.RSO_ID = R.RSO_ID
-          WHERE SR.UID = ? AND R.UnivID = E.UnivID
-        ))
-      )`);
+      // Students see: Public, Private (same univ), and RSO events (where they're members)
+      query += `
+        AND (
+          E.EventType = 'Public' 
+          OR (E.EventType = 'Private' AND E.UnivID = ?) 
+          OR (
+            E.EventType = 'RSO' AND EXISTS (
+              SELECT 1 FROM Students_RSOs SR
+              JOIN RSOs R ON SR.RSO_ID = R.RSO_ID
+              WHERE SR.UID = ? AND R.UnivID = E.UnivID
+            )
+          )
+        )
+      `;
       values.push(user.UnivID, UID);
     }
 
-    // Step 4: Combine query
-    const fullQuery = `${baseQuery} ${whereClauses.length ? 'WHERE ' + whereClauses.join(' AND ') : ''}`;
+    const [rows] = await pool.execute(query, values);
 
-    // Execute
-    const [rows] = await pool.execute(fullQuery, values);
-    res.status(200).json(rows);
+    if (rows.length === 0) {
+      return res.status(200).json({
+        message: 'No events available for this user or filter',
+        events: []
+      });
+    }
 
+    res.status(200).json({ events: rows });
   } catch (err) {
-    console.error('Error searching events:', err);
-    res.status(500).json({ error: 'Failed to search events', details: err.message });
+    console.error('Error searching Events:', err);
+    res.status(500).json({ error: 'Failed to search Events' });
   }
 });
 
