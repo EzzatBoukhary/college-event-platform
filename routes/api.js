@@ -154,172 +154,112 @@ router.get('/users/:UID', async (req, res) => {
     res.status(500).json({ error: 'Failed to find user' });
   }
 });
-
-// 
-// Add University
-// this is not working, giving error Failed to create University
+// Add University (fixed)
 router.post('/university/addUni', async (req, res) => {
+  const { Name, Location, Description, NumStudents, EmailDomain } = req.body;
+  if (!Name || !Location || !Description || !NumStudents || !EmailDomain) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
   try {
-
-    // Extract values from the JSON body
-    const {Name, Location, Description, NumStudents} = req.body;
-
-    // Validate that all required fields are present
-    if (!Name || !Location || !Description || !NumStudents) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Create the SQL query with parameterized values
-    const query = 'INSERT INTO Universities(Name, Location, Description, NumStudents) VALUES (?, ?, ?, ?)';
-    const values = [Name, Location, Description, NumStudents];
-
-    // Execute the query
-    const [result] = await pool.execute(query, values);
-
-    // Return success response
-    res.status(201).json({
-      message: 'University created successfully',
-      userId: result.insertId,
-    });
-
-  } catch (error) {
-    console.error('Error inserting University:', error);
-    res.status(500).json({ error: 'Failed to create University' });
+    const [result] = await pool.execute(
+      'INSERT INTO Universities(Name, Location, Description, NumStudents, EmailDomain) VALUES (?, ?, ?, ?, ?)',
+      [Name, Location, Description, NumStudents, EmailDomain]
+    );
+    res.status(201).json({ message: 'University created', UnivID: result.insertId });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to create university', details: err });
   }
 });
 
-// Add RSO
-// rso name, description, contact phone and email, members 5 emails. Get univID from user's email domain. Status is not needed.
-
+// Add RSO (rewritten according to your comments)
 router.post('/rso/addRSO', async (req, res) => {
-  try {
-    // Extract values from the JSON body
-    const {UnivID, Name, Status} = req.body;
+  const { Name, Description, ContactEmail, ContactPhone, memberEmails } = req.body;
+  if (!Name || !Description || !ContactEmail || !ContactPhone || !memberEmails || memberEmails.length < 5) {
+    return res.status(400).json({ error: 'Missing required fields or insufficient members' });
+  }
 
-    // Validate that all required fields are present
-    if (!UnivID || !Name || !Status) {
-      return res.status(400).json({ error: 'Missing required fields' });
+  try {
+    const emailDomain = ContactEmail.split('@')[1];
+    const [[univ]] = await pool.execute('SELECT UnivID FROM Universities WHERE EmailDomain=?', [emailDomain]);
+    if (!univ) {
+      return res.status(400).json({ error: 'University not found for provided email domain' });
     }
 
-    // Create the SQL query with parameterized values
-    const query = 'INSERT INTO RSOs(UnivID, Name, Status) VALUES ( ?, ?, ?)';
-    const values = [UnivID, Name, Status];
+    const [rsoResult] = await pool.execute(
+      'INSERT INTO RSOs(UnivID, Name, ContactEmail, ContactPhone, Status) VALUES (?, ?, ?, ?, ?)',
+      [univ.UnivID, Name, ContactEmail, ContactPhone, 'inactive']
+    );
 
-    // Execute the query
-    const [result] = await pool.execute(query, values);
+    const RSO_ID = rsoResult.insertId;
+    for (const email of memberEmails) {
+      const [[user]] = await pool.execute('SELECT UID FROM Users WHERE Email=?', [email]);
+      if (user) {
+        await pool.execute('INSERT INTO Students_RSOs(RSO_ID, UID) VALUES (?, ?)', [RSO_ID, user.UID]);
+      }
+    }
 
-    // Return success response
-    res.status(201).json({
-      message: 'RSO created successfully',
-      userId: result.insertId,
-    });
+    res.status(201).json({ message: 'RSO created', RSO_ID });
 
-  } catch (error) {
-    console.error('Error inserting RSO:', error);
-    res.status(500).json({ error: 'Failed to create RSO' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to create RSO', details: err });
   }
 });
 
-// Join RSO
-// not working
-router.post('/rso/addRSOStudent', async (req, res) => {
+// Join RSO (fixed)
+router.post('/rso/join', async (req, res) => {
+  const { RSO_ID, UID } = req.body;
+  if (!RSO_ID || !UID) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
   try {
-
-    // Extract values from the JSON body
-    const {RSO_ID, UID} = req.body;
-
-    // Validate that all required fields are present
-    if (!RSO_ID || !UID) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Create the SQL query with parameterized values
-    const query = 'INSERT INTO Students_RSOs(RSO_ID, UID) VALUES ( ?, ?)';
-    const values = [RSO_ID, UID];
-
-    // Execute the query
-    const [result] = await pool.execute(query, values);
-
-    // Return success response
-    res.status(201).json({
-      message: 'Student Added to RSO successfully',
-      userId: result.insertId,
-    });
-
-  } catch (error) {
-    console.error('Error Adding Student to RSO:', error);
-    res.status(500).json({ error: 'Failed to Add Student to RSO' });
+    await pool.execute('INSERT INTO Students_RSOs(RSO_ID, UID) VALUES (?, ?)', [RSO_ID, UID]);
+    res.status(201).json({ message: 'Joined RSO successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to join RSO', details: err });
   }
 });
 
-// Leave RSO
-// same error as join
-router.post('/rso/deleteRSOStudent', async (req, res) => {
+// Leave RSO (fixed)
+router.post('/rso/leave', async (req, res) => {
+  const { RSO_ID, UID } = req.body;
+  if (!RSO_ID || !UID) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
   try {
-
-    // Extract values from the JSON body
-    const {RSO_ID, UID} = req.body;
-
-    // Validate that all required fields are present
-    if (!RSO_ID || !UID) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Create the SQL query with parameterized values
-    const query = 'DELETE FROM Students_RSOs WHERE RSO_ID=? AND UID=?';
-    const values = [RSO_ID, UID];
-
-    // Execute the query
-    const [result] = await pool.execute(query, values);
-
-    // Return success response
-    res.status(201).json({
-      message: 'Student Removed to RSO successfully',
-      userId: result.insertId,
-    });
-
-  } catch (error) {
-    console.error('Error Removing Student to RSO:', error);
-    res.status(500).json({ error: 'Failed to Remove Student to RSO' });
+    await pool.execute('DELETE FROM Students_RSOs WHERE RSO_ID=? AND UID=?', [RSO_ID, UID]);
+    res.status(200).json({ message: 'Left RSO successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to leave RSO', details: err });
   }
 });
 
 // Search RSOs
 // query string does not make sense. It should only have an RSO name as input and it should only return RSOs in the user's university.
 router.get('/rso/searchRSOs', async (req, res) => {
+  const { Name, UID } = req.query;
+
+  if (!UID) {
+    return res.status(400).json({ error: 'UID is required' });
+  }
+
   try {
-    // Extract search parameters from the query string
-    const { UnivID, Name, Status } = req.query;
+    // Get user's university
+    const [[user]] = await pool.execute('SELECT UnivID FROM Users WHERE UID = ?', [UID]);
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
-    let query = 'SELECT * FROM RSOs WHERE 1=1'; // Start with a basic query
+    // Search for RSOs in the same university
+    const [rows] = await pool.execute(
+      'SELECT * FROM RSOs WHERE UnivID = ? AND Name LIKE ?',
+      [user.UnivID, `%${Name || ''}%`]
+    );
 
-    const values = [];
-
-    // Add conditions based on provided search parameters
-    if (UnivID) {
-      query += ' AND UnivID = ?';
-      values.push(UnivID);
-    }
-    if (Name) {
-      query += ' AND Name LIKE ?'; // Use LIKE for partial matches
-      values.push(`%${Name}%`);
-    }
-    if (Status) {
-      query += ' AND Status = ?';
-      values.push(Status);
-    }
-
-    // Execute the query
-    const [rows] = await pool.execute(query, values);
-
-    // Return the search results
     res.status(200).json(rows);
-
-  } catch (error) {
-    console.error('Error searching RSOs:', error);
+  } catch (err) {
+    console.error('Error searching RSOs:', err);
     res.status(500).json({ error: 'Failed to search RSOs' });
   }
 });
+
 // TODO: RSOs dont have Contacts
 // RSO Contact
 // router.post('/RSOContact', async (req, res) => {
@@ -355,88 +295,87 @@ router.get('/rso/searchRSOs', async (req, res) => {
 // Add Event
 // name, description, location, date, and type (public, private, RSO), contact email and phone
 router.post('/events/addEvent', async (req, res) => {
+  const {
+    UnivID,
+    LocID,
+    AdminID,
+    SuperAdminID,
+    EventType,
+    EventName,
+    Description,
+    EventDate,
+    EventTime,
+    ContactPhone,
+    ContactEmail
+  } = req.body;
+
+  if (!UnivID || !LocID || !AdminID || !SuperAdminID || !EventType || !EventName || !Description || !EventDate || !EventTime || !ContactPhone || !ContactEmail) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
   try {
+    const query = `INSERT INTO Events (
+      UnivID, LocID, AdminID, SuperAdminID, EventType, EventName, Description,
+      EventDate, EventTime, ContactPhone, ContactEmail
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    // Extract values from the JSON body
-    const {UnivID, LocID, AdminID, SuperAdminID, EventType, EventName, Description, EventDate, EventTime, ContactPhone, ContactEmail} = req.body;
+    const values = [
+      UnivID, LocID, AdminID, SuperAdminID, EventType, EventName,
+      Description, EventDate, EventTime, ContactPhone, ContactEmail
+    ];
 
-    // Validate that all required fields are present
-    if (!UnivID || !LocID || !AdminID || !SuperAdminID || !EventType || !EventName || !Description || !EventDate || !EventTime || !ContactPhone || !ContactEmail) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Create the SQL query with parameterized values
-    const query = 'INSERT INTO Events(UnivID, LocID, AdminID, SuperAdminID, EventType, EventName, Description, EventDate, EventTime, ContactPhone, ContactEmail) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
-    const values = [UnivID, LocID, AdminID, SuperAdminID, EventType, EventName, Description, EventDate, EventTime, ContactPhone, ContactEmail];
-
-    // Execute the query
     const [result] = await pool.execute(query, values);
 
-    // Return success response
-    res.status(201).json({
-      message: 'Event created successfully',
-      userId: result.insertId,
-    });
-
-  } catch (error) {
-    console.error('Error inserting Event:', error);
+    res.status(201).json({ message: 'Event created successfully', EventID: result.insertId });
+  } catch (err) {
+    console.error('Error inserting Event:', err);
     res.status(500).json({ error: 'Failed to create Event' });
   }
 });
 
+
 // Search Events
 // input to this endpoint should only be the name of the event. Empty name returns the entire list. Partial or exact matching either works. The backend should filter out events that the user is not supposed to see based on their user type and the event type (public, private, RSO).
 router.get('/events/searchEvents', async (req, res) => {
+  const { UID, EventName } = req.query;
+
+  if (!UID) return res.status(400).json({ error: 'UID is required' });
+
   try {
+    const [[user]] = await pool.execute('SELECT UserType, UnivID FROM Users WHERE UID = ?', [UID]);
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // Extract search parameters from the query string
-    const { UnivID, LocID, AdminID, SuperAdminID, EventType, EventName, EventDate } = req.query;
-
-    let query = 'SELECT * FROM Events WHERE 1=1'; // Start with a basic query
-
+    let query = `SELECT DISTINCT E.* FROM Events E `;
     const values = [];
 
-    // Add conditions based on provided search parameters
-    if (UnivID) {
-      query += ' AND UnivID = ?';
-      values.push(UnivID);
-    }
-    if (LocID) {
-      query += ' AND LocID = ?';
-      values.push(LocID);
-    }
-    if (AdminID) {
-      query += ' AND AdminID = ?';
-      values.push(AdminID);
-    }
-    if (SuperAdminID) {
-      query += ' AND SuperAdminID = ?';
-      values.push(SuperAdminID);
-    }
-    if (EventType) {
-      query += ' AND EventType = ?';
-      values.push(EventType);
-    }
-    if (EventName) {
-      query += ' AND EventName LIKE ?'; // Use LIKE for partial matches
-      values.push(`%${EventName}%`);
-    }
-    if (EventDate) {
-      query += ' AND EventDate = ?';
-      values.push(EventDate);
+    // Base filter on event name
+    query += 'WHERE E.EventName LIKE ? ';
+    values.push(`%${EventName || ''}%`);
+
+    if (user.UserType === 'Student') {
+      // Students see: Public, Private (same univ), RSO events they are members of
+      query += `
+        AND (
+          E.EventType = 'Public' OR
+          (E.EventType = 'Private' AND E.UnivID = ?) OR
+          (E.EventType = 'RSO' AND EXISTS (
+            SELECT 1 FROM Students_RSOs SR
+            JOIN RSOs R ON SR.RSO_ID = R.RSO_ID
+            WHERE SR.UID = ? AND R.RSO_ID = E.RSO_ID
+          ))
+        )
+      `;
+      values.push(user.UnivID, UID);
     }
 
-    // Execute the query
     const [rows] = await pool.execute(query, values);
-
-    // Return the search results
     res.status(200).json(rows);
-
-  } catch (error) {
-    console.error('Error searching Events:', error);
+  } catch (err) {
+    console.error('Error searching Events:', err);
     res.status(500).json({ error: 'Failed to search Events' });
   }
 });
+
 
 // Get Event Details
 router.get('/events/:EventID', async (req, res) => {
@@ -497,66 +436,39 @@ router.get('/events/:EventID', async (req, res) => {
 // Add Comment
 // Gives success but empty output with no message. Fix needed?
 router.post('/events/addComment', async (req, res) => {
+  const { EventID, UID, CommentText } = req.body;
+  if (!EventID || !UID || !CommentText) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
   try {
-
-    // Extract values from the JSON body
-    const {EventID, UID, CommentText} = req.body;
-
-    // Validate that all required fields are present
-    if (!EventID || !UID || !CommentText) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Create the SQL query with parameterized values
-    const query = 'INSERT INTO Comments(EventID, UID, CommentText) VALUES (?,?,?)';
-    const values = [];
-
-    // Execute the query
-    const [result] = await pool.execute(query, values);
-
-    // Return success response
-    res.status(201).json({
-      message: 'Comment created successfully',
-      insertID: result.insertId,
-    });
-
-  } catch (error) {
-    console.error('Error inserting Comment:', error);
-    res.status(500).json({ error: 'Failed to create Comment' });
+    const [result] = await pool.execute(
+      'INSERT INTO Comments(EventID, UID, CommentText) VALUES (?, ?, ?)',
+      [EventID, UID, CommentText]
+    );
+    res.status(201).json({ message: 'Comment added', CommentID: result.insertId });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add comment', details: err });
   }
 });
 
 // Get Comments
 // empty output currently. fix needed?
 router.get('/events/getComments', async (req, res) => {
+  const { EventID } = req.query;
+
+  if (!EventID) {
+    return res.status(400).json({ error: 'EventID is required' });
+  }
+
   try {
-
-    // Extract values from the JSON body
-    const {EventID} = req.body;
-
-    // Validate that all required fields are present
-    if (!EventID) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Create the SQL query with parameterized values
-    const query = 'SELECT * FROM Comments WHERE EventID=?';
-    const values = [EventID];
-
-    // Execute the query
-    const [result] = await pool.execute(query, values);
-
-    // Return success response
-    res.status(201).json({
-      message: 'Comment created successfully',
-      insertID: result.insertId,
-    });
-
-  } catch (error) {
-    console.error('Error inserting Comment:', error);
-    res.status(500).json({ error: 'Failed to create Comment' });
+    const [rows] = await pool.execute('SELECT * FROM Comments WHERE EventID = ?', [EventID]);
+    res.status(200).json(rows);
+  } catch (err) {
+    console.error('Error fetching comments:', err);
+    res.status(500).json({ error: 'Failed to fetch comments' });
   }
 });
+
 
 // Edit Comments
 router.post('/events/editComment', async (req, res) => {
