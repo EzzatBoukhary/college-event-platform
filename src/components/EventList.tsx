@@ -31,7 +31,7 @@ function EventList() {
 
       if (response.ok) {
         const eventsData = await response.json();
-        setEvents(eventsData);
+        setEvents(eventsData.events);
       } else {
         setStatusMessage("Failed to fetch events");
       }
