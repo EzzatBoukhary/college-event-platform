@@ -31,7 +31,7 @@ function RSODetails() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    const rso = data.data; // Adjust if backend wraps data differently
+                    const rso = data; // Adjust if backend wraps data differently
                     console.log('Fetched event details:', event);
 
                     setRSOName(rso.Name || '');

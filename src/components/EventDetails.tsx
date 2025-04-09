@@ -39,12 +39,12 @@ function EventDetails() {
 
                     setEventName(event.EventName || '');
                     //setRSO(event.RSO || '');
-                    setEventType(event.EventType || '');
+                    //setEventType(event.EventType || '');
                     setDescription(event.Description || '');
                     setEventDate(event.EventDate || '');
                     setEventTime(event.EventTime || '');
-                    setContactPhone(event.ContactPhone || '');
                     setContactEmail(event.ContactEmail || '');
+                    setContactPhone(event.ContactPhone || '');
 
                 } else {
                     setStatusMessage('Failed to fetch event details');
