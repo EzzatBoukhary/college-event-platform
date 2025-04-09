@@ -4,27 +4,34 @@ import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 function EventList() {
-  const userId = localStorage.getItem('userId');
   const [events, setEvents] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const navigate = useNavigate();
 
-  // Fetch events from the backend using the searchEvents endpoint
-  const fetchEvents = async (eventName: string) => {
+  // Fetch events from the search endpoint using UID and EventName as query parameters.
+  const fetchEvents = async () => {
+    const UID = localStorage.getItem("UID") || "";
+    if (!UID) {
+      setStatusMessage("User not logged in");
+      setIsLoading(false);
+      return;
+    }
+    
     setIsLoading(true);
     try {
-      // Build query param if search term is provided, otherwise leave it empty.
-      const queryParam = eventName ? `?EventName=${encodeURIComponent(eventName)}` : "";
-      const response = await fetch(`http://155.138.217.239:5000/api/events/searchEvents/${eventName}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await fetch(
+        `http://155.138.217.239:5000/api/events/searchEvents?UID=${UID}&EventName=${encodeURIComponent(searchTerm)}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
       if (response.ok) {
-        const data = await response.json();
-        // The endpoint returns an array of events
-        setEvents(data);
+        const eventsData = await response.json();
+        setEvents(eventsData);
       } else {
         setStatusMessage("Failed to fetch events");
       }
@@ -36,34 +43,45 @@ function EventList() {
     }
   };
 
-  // Fetch all events on initial render
+  // Debounce the search so the API call only happens after the user stops typing.
   useEffect(() => {
-    fetchEvents("");
+    const timer = setTimeout(() => {
+      fetchEvents();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Also fetch events when the component mounts.
+  useEffect(() => {
+    fetchEvents();
   }, []);
 
-  // Handle form submit for searching events
-  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    fetchEvents(searchTerm);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
   };
 
-  // When a user clicks an event, save its id and redirect to EventDetails page.
   const handleEventClick = (eventId: string) => {
     localStorage.setItem("eventId", eventId);
-    navigate("/event-details");
+    navigate("/event-details")
   };
 
   return (
     <div id="event-list-container">
       <h2 id="event-list-title">Event List</h2>
-      <form id="event-search-form" onSubmit={handleSearchSubmit}>
+      <form
+        id="event-search-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          fetchEvents();
+        }}
+      >
         <label>Search for Events</label>
         <input
           type="text"
           id="search-bar"
           placeholder="Search Event List"
           value={searchTerm}
-          onChange={(e) => fetchEvents(e.target.value)}
+          onChange={handleSearchChange}
         />
       </form>
       {isLoading ? (
@@ -73,7 +91,7 @@ function EventList() {
           {events.length > 0 ? (
             events.map((event) => (
               <Box
-                key={event.id}
+                key={event.id || event.EventID || event.EventName}
                 className="event-item"
                 sx={{
                   border: "1px solid #0F3874",
@@ -83,16 +101,17 @@ function EventList() {
                   width: "80%",
                   cursor: "pointer",
                 }}
-                onClick={() => handleEventClick(event.id)}
+                onClick={() =>
+                  handleEventClick(event.id || event.EventID || "")
+                }
               >
-                <Typography variant="h6">
-                  {event.EventName}
-                </Typography>
-                <Typography variant="body2">
-                  {event.description || event.Description}
-                </Typography>
+                <Typography variant="h6">{event.EventName}</Typography>
+                <Typography variant="body2">{event.Description}</Typography>
                 <Typography variant="caption">
-                  {event.EventDate} at {event.EventTime}
+                  On {event.EventDate} at {event.EventTime}
+                </Typography>
+                <Typography>
+                  Email us at: {event.ContactEmail} or Call us at: {event.ContactPhone}
                 </Typography>
               </Box>
             ))
