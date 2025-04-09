@@ -5,7 +5,7 @@ interface Comment {
   CommentID: number;
   UID: string;
   CommentText: string;
-  Timestamp: string; // The timestamp is expected in a format convertible with new Date()
+  Timestamp: string; // Expected to be convertible with new Date()
 }
 
 interface CommentsSectionProps {
@@ -19,11 +19,11 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ eventId }) => {
   const [editingCommentText, setEditingCommentText] = useState<string>('');
   const [message, setMessage] = useState<string>('');
 
-  // Assume the current user's UID is stored in localStorage
-  const userUID = localStorage.getItem("userId") || '';
-  console.log("Fetched userId from Localstorage for comments: ", userUID);
+  // Get current user's UID from localStorage and normalize it
+  const userUID = (localStorage.getItem("userId") || '').toLowerCase();
+  console.log("Fetched userId from LocalStorage for comments: ", userUID);
 
-  // Fetch the list of comments for the event
+  // Fetch comments
   const fetchComments = async () => {
     try {
       const response = await fetch(`http://155.138.217.239:5000/api/comments/getComments?EventID=${eventId}`);
@@ -59,11 +59,11 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ eventId }) => {
           CommentText: newCommentText
         })
       });
-      console.log("ID", eventId, "user", userUID, "text", newCommentText);
+      console.log("Posting comment:", { eventId, userUID, newCommentText });
       if (response.ok) {
         const data = await response.json();
         setMessage(data.message);
-        fetchComments(); // refresh the comments list
+        fetchComments();
         setNewCommentText('');
       } else {
         const errorData = await response.json();
@@ -75,7 +75,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ eventId }) => {
     }
   };
 
-  // Delete an existing comment (only if the comment belongs to the current user)
+  // Delete an existing comment
   const handleDeleteComment = async (commentID: number) => {
     try {
       const response = await fetch('http://155.138.217.239:5000/api/comments/deleteComment', {
@@ -100,13 +100,13 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ eventId }) => {
     }
   };
 
-  // Prepare the component for editing a comment
+  // Prepare a comment for editing
   const startEditing = (commentID: number, currentText: string) => {
     setEditingCommentId(commentID);
     setEditingCommentText(currentText);
   };
 
-  // Handle saving the edit
+  // Update an edited comment
   const handleEditComment = async () => {
     if (editingCommentId === null || !editingCommentText.trim()) {
       setMessage('Comment text cannot be empty');
@@ -189,8 +189,8 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ eventId }) => {
                 <Typography variant="body1" sx={{ marginTop: 1, marginBottom: 1 }}>
                   {comment.CommentText}
                 </Typography>
-                {/* Only show edit/delete buttons if the comment belongs to the current user */} 
-                {comment.UID === userUID && (
+                {/* Show edit/delete buttons if the comment belongs to the current user */}
+                {comment.UID && comment.UID.toLowerCase() === userUID && (
                   <Box>
                     <Button 
                       variant="outlined" 
