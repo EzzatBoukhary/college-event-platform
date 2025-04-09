@@ -195,7 +195,20 @@ router.post('/rso/addRSO', async (req, res) => {
       return res.status(400).json({ error: 'University not found for provided email domain' });
     }
 
-    // Step 2: Check that all member emails are registered users
+    // Step 2: Check if RSO with same name already exists in the same university
+    const [existingRSO] = await pool.execute(
+      'SELECT * FROM RSOs WHERE Name = ? AND UnivID = ?',
+      [Name, univ.UnivID]
+    );
+
+    if (existingRSO.length > 0) {
+      return res.status(409).json({
+        error: 'An RSO with this name already exists at your university',
+        RSO_ID: existingRSO[0].RSO_ID
+      });
+    }
+
+    // Step 3: Check that all member emails are registered users
     const placeholders = memberEmails.map(() => '?').join(',');
     const [registeredUsers] = await pool.execute(
       `SELECT UID, Email FROM Users WHERE Email IN (${placeholders})`,
@@ -212,7 +225,7 @@ router.post('/rso/addRSO', async (req, res) => {
       });
     }
 
-    // Step 3: Insert the RSO
+    // Step 4: Insert the RSO
     const [rsoResult] = await pool.execute(
       'INSERT INTO RSOs(UnivID, Name, ContactEmail, ContactPhone, Status) VALUES (?, ?, ?, ?, ?)',
       [univ.UnivID, Name, ContactEmail, ContactPhone, 'inactive']
@@ -220,7 +233,7 @@ router.post('/rso/addRSO', async (req, res) => {
 
     const RSO_ID = rsoResult.insertId;
 
-    // Step 4: Add all registered members to Students_RSOs
+    // Step 5: Add all registered members to Students_RSOs
     for (const user of registeredUsers) {
       await pool.execute('INSERT INTO Students_RSOs(RSO_ID, UID) VALUES (?, ?)', [RSO_ID, user.UID]);
     }
@@ -232,6 +245,7 @@ router.post('/rso/addRSO', async (req, res) => {
     res.status(500).json({ error: 'Failed to create RSO', details: err.message });
   }
 });
+
 
 
 // Join RSO (fixed)
@@ -404,42 +418,58 @@ router.post('/events/addEvent', async (req, res) => {
 router.get('/events/searchEvents', async (req, res) => {
   const { UID, EventName } = req.query;
 
-  if (!UID) return res.status(400).json({ error: 'UID is required' });
+  if (!UID) {
+    return res.status(400).json({ error: 'UID is required' });
+  }
 
   try {
-    const [[user]] = await pool.execute('SELECT UserType, UnivID FROM Users WHERE UID = ?', [UID]);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    // Step 1: Get user role and university
+    const [[user]] = await pool.execute(
+      'SELECT UserType, UnivID FROM Users WHERE UID = ?',
+      [UID]
+    );
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
 
-    let query = `SELECT DISTINCT E.* FROM Events E `;
-    const values = [];
+    // Step 2: Build base query and params
+    let baseQuery = 'SELECT DISTINCT E.* FROM Events E';
+    let whereClauses = [];
+    let values = [];
 
-    // Base filter on event name
-    query += 'WHERE E.EventName LIKE ? ';
-    values.push(`%${EventName || ''}%`);
+    // Optional name filter
+    if (EventName) {
+      whereClauses.push('E.EventName LIKE ?');
+      values.push(`%${EventName}%`);
+    }
 
+    // Step 3: Add access control based on user type
     if (user.UserType === 'Student') {
-      // Students see: Public, Private (same univ), RSO events they are members of
-      query += `
-        AND (
-          E.EventType = 'Public' OR
-          (E.EventType = 'Private' AND E.UnivID = ?) OR
-          (E.EventType = 'RSO' AND EXISTS (
-            SELECT 1 FROM Students_RSOs SR
-            JOIN RSOs R ON SR.RSO_ID = R.RSO_ID
-            WHERE SR.UID = ? AND R.RSO_ID = E.RSO_ID
-          ))
-        )
-      `;
+      whereClauses.push(`(
+        E.EventType = 'Public'
+        OR (E.EventType = 'Private' AND E.UnivID = ?)
+        OR (E.EventType = 'RSO' AND EXISTS (
+          SELECT 1 FROM Students_RSOs SR
+          JOIN RSOs R ON SR.RSO_ID = R.RSO_ID
+          WHERE SR.UID = ? AND R.UnivID = E.UnivID
+        ))
+      )`);
       values.push(user.UnivID, UID);
     }
 
-    const [rows] = await pool.execute(query, values);
+    // Step 4: Combine query
+    const fullQuery = `${baseQuery} ${whereClauses.length ? 'WHERE ' + whereClauses.join(' AND ') : ''}`;
+
+    // Execute
+    const [rows] = await pool.execute(fullQuery, values);
     res.status(200).json(rows);
+
   } catch (err) {
-    console.error('Error searching Events:', err);
-    res.status(500).json({ error: 'Failed to search Events' });
+    console.error('Error searching events:', err);
+    res.status(500).json({ error: 'Failed to search events', details: err.message });
   }
 });
+
 
 
 // Get Event Details
