@@ -17,10 +17,9 @@ function EventList() {
     try {
       // Build query param if search term is provided, otherwise leave it empty.
       const queryParam = eventName ? `?EventName=${encodeURIComponent(eventName)}` : "";
-      const response = await fetch(`http://155.138.217.239:5000/api/events/searchEvents`, {
+      const response = await fetch(`http://155.138.217.239:5000/api/events/searchEvents/${eventName}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, eventName })
       });
       if (response.ok) {
         const data = await response.json();
