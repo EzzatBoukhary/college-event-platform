@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, TextField, Typography, Box } from '@mui/material';
 import './GeneralDetails.css';
 
-function RSODetails() {
+function CreateRSO() {
   // State declarations for the RSO data and the member emails.
   const [RSOName, setRSOName] = useState('');
   const [description, setDescription] = useState('');
@@ -197,4 +197,4 @@ function RSODetails() {
   );
 }
 
-export default RSODetails;
+export default CreateRSO;
