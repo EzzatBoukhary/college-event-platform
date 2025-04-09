@@ -10,10 +10,15 @@ function UniversityProfile() {
     const [statusMessage, setStatusMessage] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
+    // Retrieve the university ID and the UserType
     const uniId = localStorage.getItem('UniID') || '';
-    console.log('Retrieved uniId from localStorage:', uniId);
+    const userType = localStorage.getItem('UserType');
+    const isSuperAdmin = userType === 'SuperAdmin';
 
-    // Fetch the user's information
+    console.log('Retrieved uniId from localStorage:', uniId);
+    console.log('UserType:', userType);
+
+    // Fetch the university's details from the backend
     useEffect(() => {
         const fetchUniDetails = async () => {
             if (!uniId) {
@@ -51,7 +56,7 @@ function UniversityProfile() {
         fetchUniDetails();
     }, [uniId]);
 
-    // Handle password confirmation
+    // Handle input changes
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUniName(e.target.value);
     };
@@ -66,8 +71,12 @@ function UniversityProfile() {
     };
 
     const handleSaveChanges = async () => {
+        // Only allow saving if the user is a SuperAdmin
+        if (!isSuperAdmin) {
+            setStatusMessage('You do not have permission to edit this page.');
+            return;
+        }
 
-        // Data for resetting the password
         const uniChangeData = {
             uniId,
             location,
@@ -76,7 +85,6 @@ function UniversityProfile() {
         };
 
         try {
-            // Call the reset password endpoint
             const response = await fetch('https://155.138.217.239:5000/uniReset', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -95,9 +103,8 @@ function UniversityProfile() {
         }
     };
 
-
     return (
-        <div style={{ width: '100vw', height: '90vh', display: 'flex' , alignItems: 'center', justifyItems: 'center' }}>
+        <div style={{ width: '100vw', height: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Box
                 className="boxDiv"
                 sx={{
@@ -109,7 +116,7 @@ function UniversityProfile() {
                     border: '8px solid #0F3874',
                     borderRadius: 2,
                     boxShadow: 3,
-                    width: '600vw',
+                    width: '600px',
                     height: '60vh',
                     backgroundColor: 'rgba(15, 56, 116, 0.85)',
                     overflowY: 'auto',
@@ -127,35 +134,37 @@ function UniversityProfile() {
                             className="custom-textfield"
                             id="Name"
                             placeholder="Name"
-                            type="Name"
+                            type="text"
                             variant="outlined"
                             margin="normal"
                             fullWidth
                             value={uniName}
                             onChange={handleNameChange}
-
+                            disabled={!isSuperAdmin}
                         />
                         <TextField
                             className="custom-textfield"
                             id="location"
                             placeholder="Location"
-                            type="location"
+                            type="text"
                             variant="outlined"
                             margin="normal"
                             fullWidth
                             value={location}
                             onChange={handleLocationChange}
+                            disabled={!isSuperAdmin}
                         />
                         <TextField
                             className="custom-textfield"
                             id="description"
                             placeholder="Description"
-                            type="description"
+                            type="text"
                             variant="outlined"
                             margin="normal"
                             fullWidth
                             value={description}
                             onChange={handleDescriptionChange}
+                            disabled={!isSuperAdmin}
                         />
                         <TextField
                             className="custom-textfield"
@@ -167,6 +176,7 @@ function UniversityProfile() {
                             fullWidth
                             value={studentNum}
                             onChange={handleStudentNumChange}
+                            disabled={!isSuperAdmin}
                         />
                         <Button
                             id="SaveChanges"
@@ -174,13 +184,23 @@ function UniversityProfile() {
                             variant="contained"
                             color="primary"
                             onClick={handleSaveChanges}
+                            disabled={!isSuperAdmin}
                             sx={{ marginTop: 3, width: '100%' }}
                         >
                             Save Changes
                         </Button>
                     </>
                 )}
-                {statusMessage && <Typography variant="body2" color="error">{statusMessage}</Typography>}
+                {statusMessage && (
+                    <Typography variant="body2" color="error">
+                        {statusMessage}
+                    </Typography>
+                )}
+                {!isSuperAdmin && (
+                    <Typography variant="body2" color="textSecondary" sx={{ marginTop: 2 }}>
+                        Note: Editing is restricted to SuperAdmin users.
+                    </Typography>
+                )}
             </Box>
         </div>
     );

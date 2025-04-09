@@ -38,10 +38,11 @@ interface LoginProps {
              if (response.ok) {
                  const json = await response.json();
                  const userId = json.user.UID || json.data[0]._id;
-                 const uniID = json.user.UnivID;
-                 localStorage.setItem("UniID", uniID);
-                 console.log('Stored uniId from localStorage:', uniID);
                  localStorage.setItem("userId", userId);
+                 const uniID = json.user.UnivID;
+                 console.log('Stored uniId into localStorage:', uniID);
+                 const userType = json.user.UserType;
+                 localStorage.setItem("userType", userType);
                  setLoginResult("Login Successful");
                  onLogin();
                  navigate('/account-details');
