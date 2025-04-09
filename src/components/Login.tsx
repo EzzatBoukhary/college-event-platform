@@ -8,14 +8,14 @@ interface LoginProps {
     onLogin: () => void;
 }
 
-export async function hashPassword(password: string): Promise<string> {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
-    return hashHex;
-  }
+// export async function hashPassword(password: string): Promise<string> {
+//     const encoder = new TextEncoder();
+//     const data = encoder.encode(password);
+//     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+//     const hashArray = Array.from(new Uint8Array(hashBuffer));
+//     const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+//     return hashHex;
+//   }
 
  function Login({ onLogin }: LoginProps) {
 
@@ -36,15 +36,15 @@ export async function hashPassword(password: string): Promise<string> {
              return;
          }
 
-         const hashedPassword = hashPassword(password);
-         console.log("Password", hashedPassword);
+        //  const hashedPassword = hashPassword(password);
+        //  console.log("Password", hashedPassword);
          try {
              const response = await fetch('http://155.138.217.239:5000/api/login', {
                  method: 'POST',
                  headers: {
                      'Content-Type': 'application/json'
                  },
-                 body: JSON.stringify({ email, hashedPassword })
+                 body: JSON.stringify({ email, password })
              });
             
             //  let match = await compare(password, user.password);
@@ -62,7 +62,6 @@ export async function hashPassword(password: string): Promise<string> {
                  localStorage.setItem("userId", userId);
                  const uniID = json.user.UnivID;
                  console.log('Stored 2 uniId into localStorage:', uniID);
-                 console.log("Password 2", hashedPassword);
                  const userType = json.user.UserType;
                  localStorage.setItem("userType", userType);
                  setLoginResult("Login Successful");
