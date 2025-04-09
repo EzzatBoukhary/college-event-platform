@@ -163,55 +163,6 @@ function AccountDetails() {
                                 readOnly: true, // Makes the email field read-only
                             }}
                         />
-                        <TextField
-                            className="custom-textfield"
-                            id="ResetPassword"
-                            placeholder="Reset password"
-                            type="password"
-                            variant="outlined"
-                            margin="normal"
-                            fullWidth
-                            value={resetPassword}
-                            onChange={handleResetPasswordChange}
-                        />
-                        <TextField
-                            className="custom-textfield"
-                            id="confirmResetPassword"
-                            placeholder="Confirm Reset Password"
-                            type="password"
-                            variant="outlined"
-                            margin="normal"
-                            fullWidth
-                            value={confirmResetPassword}
-                            onChange={handleConfirmPasswordChange}
-                            error={!!confirmPasswordError}
-                            helperText={confirmPasswordError}
-                        />
-                        <div className="form-group">
-                            <label htmlFor="userType">User Type</label>
-                            <select
-                                id="userType"
-                                value={userType}
-                                onChange={handleUserType}
-                                className={`form-control ${userTypeError ? 'is-invalid' : ''}`}
-                            >
-                            <option value="">Select User Type</option>
-                            <option value="Student">Student</option>
-                            <option value="Admin">Admin</option>
-                            <option value="Super Admin">Super Admin</option>
-                            </select>
-                                {userTypeError && <div className="invalid-feedback">{userTypeError}</div>}
-                        </div>
-                        <Button
-                            id="SaveChanges"
-                            className="ncButton"
-                            variant="contained"
-                            color="primary"
-                            onClick={handleSaveChanges}
-                            sx={{ marginTop: 3, width: '100%' }}
-                        >
-                            Save Changes
-                        </Button>
                     </>
                 )}
                 {statusMessage && <Typography variant="body2" color="error">{statusMessage}</Typography>}
