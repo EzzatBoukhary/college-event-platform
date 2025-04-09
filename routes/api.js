@@ -311,22 +311,6 @@ router.post('/rso/leave', async (req, res) => {
   }
 });
 
-// Get RSO Details
-router.get('/rso/:rsoID', async (req, res) => {
-  const RSO_ID = req.params.RSO_ID;
-
-  if (!RSO_ID) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  const query = 'SELECT * FROM Students_RSOs WHERE RSO_ID=? LIMIT 1';
-  const values = [RSO_ID];
-
-  const [result] = await pool.execute(query, values);
-  res.status(200).json(result);
-});
-
-
 // Search RSOs
 // query string does not make sense. It should only have an RSO name as input and it should only return RSOs in the user's university.
 router.get('/rso/searchRSOs', async (req, res) => {
@@ -353,6 +337,22 @@ router.get('/rso/searchRSOs', async (req, res) => {
     res.status(500).json({ error: 'Failed to search RSOs' });
   }
 });
+
+// Get RSO Details
+router.get('/rso/:RSO_ID', async (req, res) => {
+  const RSO_ID = req.params.RSO_ID;
+
+  if (!RSO_ID) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const query = 'SELECT * FROM Students_RSOs WHERE RSO_ID=? LIMIT 1';
+  const values = [RSO_ID];
+
+  const [result] = await pool.execute(query, values);
+  res.status(200).json(result);
+});
+
 
 // TODO: RSOs dont have Contacts
 // RSO Contact

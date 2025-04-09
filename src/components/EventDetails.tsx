@@ -43,8 +43,8 @@ function EventDetails() {
                     setDescription(event.Description || '');
                     setEventDate(event.EventDate || '');
                     setEventTime(event.EventTime || '');
-                    // setContactEmail(event.ContactEmail || '');
-                    // setContactPhone(event.ContactPhone || '');
+                    setContactEmail(event.ContactEmail || '');
+                    setContactPhone(event.ContactPhone || '');
 
                 } else {
                     setStatusMessage('Failed to fetch event details');
