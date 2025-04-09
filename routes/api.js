@@ -137,7 +137,7 @@ router.post('/signup', async (req, res) => {
 });
 
 
-router.get('/users/:UID', async (req, res) => {
+router.get('/users/details/:UID', async (req, res) => {
   try {
 
     // Create the SQL query with a parameter
@@ -169,7 +169,7 @@ router.get('/users/:UID', async (req, res) => {
 });
 
 // Get University details
-router.get('/university/:UnivID', async (req, res) => {
+router.get('/university/details/:UnivID', async (req, res) => {
   const UnivID = req.params.UnivID;
 
   try {
@@ -427,7 +427,7 @@ router.get('/rso/searchRSOs', async (req, res) => {
 });
 
 // Get RSO Details
-router.get('/rso/:RSO_ID', async (req, res) => {
+router.get('/rso/details/:RSO_ID', async (req, res) => {
   const RSO_ID = req.params.RSO_ID;
 
   try {
@@ -672,7 +672,7 @@ router.post('/events/approve', async (req, res) => {
 
 
 // Get Event Details
-router.get('/events/:EventID', async (req, res) => {
+router.get('/events/details/:EventID', async (req, res) => {
   const EventID = req.params.EventID;
 
   if (!EventID) {
