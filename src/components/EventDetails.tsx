@@ -39,7 +39,7 @@ function EventDetails() {
 
                     setEventName(event.EventName || '');
                     //setRSO(event.RSO || '');
-                    setEventType(event.eventType || '');
+                    setEventType(event.EventType || '');
                     setDescription(event.Description || '');
                     setEventDate(event.EventDate || '');
                     setEventTime(event.EventTime || '');
