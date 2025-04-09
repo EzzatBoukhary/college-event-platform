@@ -46,6 +46,7 @@
                       <Route path="/event-list" element={<EventListPage />} />
                       <Route path="/event-details" element={<EventDetailsPage />} />
                       <Route path="/create-event" element={<CreateEventPage />} />
+                      <Route path="/pending-events" element={<PendingEventsPage />} />
                       {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} /> */}
                       {/* You can add more routes here */}
                   </Routes>
