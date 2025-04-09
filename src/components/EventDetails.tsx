@@ -37,14 +37,14 @@ function EventDetails() {
                     const event = data.data; // Adjust if backend wraps data differently
                     console.log('Fetched event details:', event);
 
-                    setEventName(event.firstName || '');
-                    setRSO(event.RSO || '');
+                    setEventName(event.EventName || '');
+                    //setRSO(event.RSO || '');
                     setEventType(event.eventType || '');
-                    setDescription(event.description || '');
-                    setEventDate(event.eventDate || '');
-                    setEventTime(event.eventTime || '');
-                    setContactPhone(event.contactPhone || '');
-                    setContactEmail(event.contactEmail || '');
+                    setDescription(event.Description || '');
+                    setEventDate(event.EventDate || '');
+                    setEventTime(event.EventTime || '');
+                    setContactPhone(event.ContactPhone || '');
+                    setContactEmail(event.ContactEmail || '');
 
                 } else {
                     setStatusMessage('Failed to fetch event details');
@@ -100,7 +100,7 @@ function EventDetails() {
                                 readOnly: true, // Makes the email field read-only
                             }}
                         />
-                        <TextField
+                        {/* <TextField
                             className="custom-textfield"
                             id="RSO"
                             placeholder="RSO Name"
@@ -112,7 +112,7 @@ function EventDetails() {
                             inputProps={{
                                 readOnly: true,
                             }}
-                        />
+                        /> */}
                         <TextField
                             className="custom-textfield"
                             id="description"
