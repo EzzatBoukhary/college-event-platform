@@ -68,7 +68,7 @@ function RSODetails() {
           const response = await fetch("http://155.138.217.239:5000/api/rso/join", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ rsoId, userId }),
+            body: JSON.stringify({ RSO_ID: rsoId, UID: userId }),
           });
     
           if (response.ok) {
@@ -96,7 +96,7 @@ function RSODetails() {
           const response = await fetch("http://155.138.217.239:5000/api/rso/leave", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ rsoId, userId }),
+            body: JSON.stringify({ RSO_ID: rsoId, UID: userId }),
           });
     
           if (response.ok) {
