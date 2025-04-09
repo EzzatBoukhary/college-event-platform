@@ -160,7 +160,6 @@ router.post('/university/addUni', async (req, res) => {
 router.post('/rso/addRSO', async (req, res) => {
   const { Name, Description, ContactEmail, ContactPhone, memberEmails } = req.body;
 
-  // Validation
   if (!Name || !Description || !ContactEmail || !ContactPhone || !Array.isArray(memberEmails)) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
@@ -170,7 +169,7 @@ router.post('/rso/addRSO', async (req, res) => {
   }
 
   try {
-    // 1. Determine UnivID from email domain
+    // Get UnivID from contact email
     const domain = ContactEmail.split('@')[1];
     const [[univ]] = await pool.execute(
       'SELECT UnivID FROM Universities WHERE EmailDomain = ?',
@@ -181,27 +180,27 @@ router.post('/rso/addRSO', async (req, res) => {
       return res.status(400).json({ error: 'University not found for provided email domain' });
     }
 
-    // 2. Validate that the contact email belongs to an Admin in that university
+    // Ensure an Admin is creating the RSO
     const [[adminUser]] = await pool.execute(
       'SELECT UID FROM Users WHERE Email = ? AND UserType = "Admin" AND UnivID = ?',
       [ContactEmail, univ.UnivID]
     );
 
     if (!adminUser) {
-      return res.status(403).json({ error: 'Only Admin users from the same university can create RSOs' });
+      return res.status(403).json({ error: 'Only Admins from the same university can create RSOs' });
     }
 
-
-    // 2. Check if RSO with same name already exists at this university
-    const [existing] = await pool.execute(
+    // Check if RSO with this name already exists at this university
+    const [existingRSO] = await pool.execute(
       'SELECT * FROM RSOs WHERE Name = ? AND UnivID = ?',
       [Name, univ.UnivID]
     );
-    if (existing.length > 0) {
-      return res.status(409).json({ error: 'An RSO with this name already exists at your university' });
+
+    if (existingRSO.length > 0) {
+      return res.status(409).json({ error: 'RSO already exists at this university' });
     }
 
-    // 3. Validate all member emails exist
+    // Validate that all member emails exist
     const placeholders = memberEmails.map(() => '?').join(',');
     const [members] = await pool.execute(
       `SELECT UID, Email FROM Users WHERE Email IN (${placeholders})`,
@@ -210,11 +209,11 @@ router.post('/rso/addRSO', async (req, res) => {
 
     if (members.length !== memberEmails.length) {
       const found = members.map(m => m.Email);
-      const missing = memberEmails.filter(e => !found.includes(e));
+      const missing = memberEmails.filter(email => !found.includes(email));
       return res.status(400).json({ error: 'Some member emails are not registered', missingEmails: missing });
     }
 
-    // 4. Insert the RSO
+    // Insert the new RSO
     const [rsoResult] = await pool.execute(
       'INSERT INTO RSOs (UnivID, Name, Description, ContactEmail, ContactPhone, Status) VALUES (?, ?, ?, ?, ?, ?)',
       [univ.UnivID, Name, Description, ContactEmail, ContactPhone, 'inactive']
@@ -222,7 +221,7 @@ router.post('/rso/addRSO', async (req, res) => {
 
     const RSO_ID = rsoResult.insertId;
 
-    // 5. Add members to Students_RSOs
+    // Add members
     for (const member of members) {
       await pool.execute(
         'INSERT INTO Students_RSOs (RSO_ID, UID) VALUES (?, ?)',
@@ -230,13 +229,14 @@ router.post('/rso/addRSO', async (req, res) => {
       );
     }
 
-    res.status(201).json({ message: 'RSO created successfully', RSO_ID });
+    return res.status(201).json({ message: 'RSO created successfully', RSO_ID });
 
   } catch (err) {
     console.error('Error creating RSO:', err);
-    res.status(500).json({ error: 'Failed to create RSO', details: err.message });
+    return res.status(500).json({ error: 'Failed to create RSO', details: err.message });
   }
 });
+
 
 router.post('/rso/delete', async (req, res) => {
   const { RSO_ID, AdminEmail } = req.body;
