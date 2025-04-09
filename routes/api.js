@@ -516,7 +516,7 @@ router.get('/events/searchEvents', async (req, res) => {
     let where = [`E.EventName LIKE ?`];
     let values = [`%${EventName || ''}%`];
 
-    if (user.UserType === 'Student') {
+    if (user.UserType === 'Student' || user.UserType === 'Admin') {
       where.push(`(
         (E.EventType = 'Public' AND E.Approved = 'approved')
         OR (E.EventType = 'Private' AND E.UnivID = ?)
