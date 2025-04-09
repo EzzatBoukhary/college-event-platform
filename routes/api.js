@@ -96,33 +96,47 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.get('/signup', async (req, res) => {
-  try {
-    // Extract values from the JSON body
-    const { userType, name, email, password } = req.body;
+router.post('/signup', async (req, res) => {
+  const { UserType, Name, Email, Password } = req.body;
 
-    // Validate that all required fields are present
-    if (!userType || !name || !email || !password) {
-      return res.status(400).json({ error: 'Missing required fields' });
+  if (!UserType || !Name || !Email || !Password) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  let UnivID = null;
+
+  try {
+    // If student or admin, extract university from email domain
+    if (UserType === 'Student' || UserType === 'Admin') {
+      const domain = Email.split('@')[1];
+      const [[university]] = await pool.execute(
+        'SELECT UnivID FROM Universities WHERE EmailDomain = ?',
+        [domain]
+      );
+
+      if (!university) {
+        return res.status(400).json({ error: 'University not found for email domain' });
+      }
+
+      UnivID = university.UnivID;
     }
 
-    // Create the SQL query with parameterized values
-    const query = 'INSERT INTO Users(UserType, Name, Email, Password) VALUES (?, ?, ?, ?)';
-    const values = [userType, name, email, password];
+    const query = 'INSERT INTO Users(UserType, Name, Email, Password, UnivID) VALUES (?, ?, ?, ?, ?)';
+    const values = [UserType, Name, Email, Password, UnivID];
 
-    // Execute the query
     const [result] = await pool.execute(query, values);
 
-    // Return success response
     res.status(201).json({
       message: 'User created successfully',
-      userId: result.insertId,
+      userId: result.insertId
     });
-  } catch (error) {
-    console.error('Error inserting user:', error);
-    res.status(500).json({ error: 'Failed to create user' });
+
+  } catch (err) {
+    console.error('Error during signup:', err);
+    res.status(500).json({ error: 'Failed to create user', details: err.message });
   }
 });
+
 
 router.get('/users/:UID', async (req, res) => {
   try {
@@ -175,6 +189,7 @@ router.post('/university/addUni', async (req, res) => {
 router.post('/rso/addRSO', async (req, res) => {
   const { Name, Description, ContactEmail, ContactPhone, memberEmails } = req.body;
 
+  // Validation
   if (!Name || !Description || !ContactEmail || !ContactPhone || !Array.isArray(memberEmails)) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
@@ -184,58 +199,53 @@ router.post('/rso/addRSO', async (req, res) => {
   }
 
   try {
-    // Step 1: Get UnivID from ContactEmail domain
-    const emailDomain = ContactEmail.split('@')[1];
+    // 1. Determine UnivID from email domain
+    const domain = ContactEmail.split('@')[1];
     const [[univ]] = await pool.execute(
       'SELECT UnivID FROM Universities WHERE EmailDomain = ?',
-      [emailDomain]
+      [domain]
     );
 
     if (!univ) {
       return res.status(400).json({ error: 'University not found for provided email domain' });
     }
 
-    // Step 2: Check if RSO with same name already exists in the same university
-    const [existingRSO] = await pool.execute(
+    // 2. Check if RSO with same name already exists at this university
+    const [existing] = await pool.execute(
       'SELECT * FROM RSOs WHERE Name = ? AND UnivID = ?',
       [Name, univ.UnivID]
     );
-
-    if (existingRSO.length > 0) {
-      return res.status(409).json({
-        error: 'An RSO with this name already exists at your university',
-        RSO_ID: existingRSO[0].RSO_ID
-      });
+    if (existing.length > 0) {
+      return res.status(409).json({ error: 'An RSO with this name already exists at your university' });
     }
 
-    // Step 3: Check that all member emails are registered users
+    // 3. Validate all member emails exist
     const placeholders = memberEmails.map(() => '?').join(',');
-    const [registeredUsers] = await pool.execute(
+    const [members] = await pool.execute(
       `SELECT UID, Email FROM Users WHERE Email IN (${placeholders})`,
       memberEmails
     );
 
-    const registeredEmails = registeredUsers.map(user => user.Email);
-    const missingEmails = memberEmails.filter(email => !registeredEmails.includes(email));
-
-    if (missingEmails.length > 0) {
-      return res.status(400).json({
-        error: 'Some member emails are not registered. All members must be signed up before creating an RSO.',
-        missingEmails
-      });
+    if (members.length !== memberEmails.length) {
+      const found = members.map(m => m.Email);
+      const missing = memberEmails.filter(e => !found.includes(e));
+      return res.status(400).json({ error: 'Some member emails are not registered', missingEmails: missing });
     }
 
-    // Step 4: Insert the RSO
+    // 4. Insert the RSO
     const [rsoResult] = await pool.execute(
-      'INSERT INTO RSOs(UnivID, Name, ContactEmail, ContactPhone, Status) VALUES (?, ?, ?, ?, ?)',
-      [univ.UnivID, Name, ContactEmail, ContactPhone, 'inactive']
+      'INSERT INTO RSOs (UnivID, Name, Description, ContactEmail, ContactPhone, Status) VALUES (?, ?, ?, ?, ?, ?)',
+      [univ.UnivID, Name, Description, ContactEmail, ContactPhone, 'inactive']
     );
 
     const RSO_ID = rsoResult.insertId;
 
-    // Step 5: Add all registered members to Students_RSOs
-    for (const user of registeredUsers) {
-      await pool.execute('INSERT INTO Students_RSOs(RSO_ID, UID) VALUES (?, ?)', [RSO_ID, user.UID]);
+    // 5. Add members to Students_RSOs
+    for (const member of members) {
+      await pool.execute(
+        'INSERT INTO Students_RSOs (RSO_ID, UID) VALUES (?, ?)',
+        [RSO_ID, member.UID]
+      );
     }
 
     res.status(201).json({ message: 'RSO created successfully', RSO_ID });
@@ -245,6 +255,7 @@ router.post('/rso/addRSO', async (req, res) => {
     res.status(500).json({ error: 'Failed to create RSO', details: err.message });
   }
 });
+
 
 
 
@@ -390,42 +401,100 @@ router.get('/rso/:RSO_ID', async (req, res) => {
 // name, description, location, date, and type (public, private, RSO), contact email and phone
 router.post('/events/addEvent', async (req, res) => {
   const {
-    UnivID,
-    LocID,
-    AdminID,
-    SuperAdminID,
-    EventType,
     EventName,
     Description,
+    LocationName,
     EventDate,
     EventTime,
-    ContactPhone,
-    ContactEmail
+    EventType,
+    RSO_ID, // Optional
+    ContactEmail,
+    ContactPhone
   } = req.body;
 
-  if (!UnivID || !LocID || !AdminID || !SuperAdminID || !EventType || !EventName || !Description || !EventDate || !EventTime || !ContactPhone || !ContactEmail) {
+  if (!EventName || !Description || !LocationName || !EventDate || !EventTime || !EventType || !ContactEmail || !ContactPhone) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
   try {
-    const query = `INSERT INTO Events (
-      UnivID, LocID, AdminID, SuperAdminID, EventType, EventName, Description,
-      EventDate, EventTime, ContactPhone, ContactEmail
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    // 1. Get UnivID from email domain
+    const domain = ContactEmail.split('@')[1];
+    const [[university]] = await pool.execute(
+      'SELECT UnivID FROM Universities WHERE EmailDomain = ?',
+      [domain]
+    );
+    if (!university) return res.status(400).json({ error: 'University not found for email domain' });
+    const UnivID = university.UnivID;
 
+    // 2. Get AdminID
+    const [[admin]] = await pool.execute(
+      'SELECT UID FROM Users WHERE Email = ? AND UserType = "Admin"',
+      [ContactEmail]
+    );
+    if (!admin) return res.status(400).json({ error: 'Admin user not found for provided contact email' });
+    const AdminID = admin.UID;
+
+    // 3. Get or insert Location
+    let LocID;
+    const [[existingLoc]] = await pool.execute(
+      'SELECT LocID FROM Locations WHERE Name = ?',
+      [LocationName]
+    );
+    if (existingLoc) {
+      LocID = existingLoc.LocID;
+    } else {
+      const [locResult] = await pool.execute(
+        'INSERT INTO Locations (Name, Address, Latitude, Longitude) VALUES (?, ?, ?, ?)',
+        [LocationName, 'TBD', 0.0, 0.0]
+      );
+      LocID = locResult.insertId;
+    }
+
+    // 4. Validate RSO_ID if RSO event
+    let finalRSO_ID = null;
+    if (EventType === 'RSO') {
+      if (!RSO_ID) return res.status(400).json({ error: 'RSO_ID is required for RSO events' });
+
+      const [[rso]] = await pool.execute(
+        'SELECT * FROM RSOs WHERE RSO_ID = ? AND UnivID = ?',
+        [RSO_ID, UnivID]
+      );
+      if (!rso) return res.status(400).json({ error: 'RSO not found or not in the same university' });
+
+      finalRSO_ID = RSO_ID;
+    }
+
+    // 5. Determine approval status
+    const Approved = (EventType === 'Public') ? 'pending' : 'approved';
+
+    // 6. Insert event
+    const query = `
+      INSERT INTO Events (
+        UnivID, LocID, AdminID, EventType,
+        EventName, Description, EventDate, EventTime,
+        ContactPhone, ContactEmail, RSO_ID, Approved
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
     const values = [
-      UnivID, LocID, AdminID, SuperAdminID, EventType, EventName,
-      Description, EventDate, EventTime, ContactPhone, ContactEmail
+      UnivID, LocID, AdminID, EventType,
+      EventName, Description, EventDate, EventTime,
+      ContactPhone, ContactEmail, finalRSO_ID, Approved
     ];
 
     const [result] = await pool.execute(query, values);
 
-    res.status(201).json({ message: 'Event created successfully', EventID: result.insertId });
+    res.status(201).json({
+      message: 'Event created successfully',
+      EventID: result.insertId,
+      approvalStatus: Approved
+    });
+
   } catch (err) {
-    console.error('Error inserting Event:', err);
-    res.status(500).json({ error: 'Failed to create Event' });
+    console.error('Error creating event:', err);
+    res.status(500).json({ error: 'Failed to create event', details: err.message });
   }
 });
+
 
 
 // Search Events
@@ -436,26 +505,23 @@ router.get('/events/searchEvents', async (req, res) => {
   if (!UID) return res.status(400).json({ error: 'UID is required' });
 
   try {
-    // 1. Fetch the user
+    // 1. Get user info
     const [[user]] = await pool.execute(
       'SELECT UserType, UnivID FROM Users WHERE UID = ?',
       [UID]
     );
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // 2. Build query
     let query = `SELECT DISTINCT E.* FROM Events E `;
     let where = [`E.EventName LIKE ?`];
     let values = [`%${EventName || ''}%`];
 
     if (user.UserType === 'Student') {
-      // Limit to events the student can see
       where.push(`(
-        E.EventType = 'Public'
+        (E.EventType = 'Public' AND E.Approved = 'approved')
         OR (E.EventType = 'Private' AND E.UnivID = ?)
         OR (
-          E.EventType = 'RSO'
-          AND EXISTS (
+          E.EventType = 'RSO' AND EXISTS (
             SELECT 1 FROM Students_RSOs SR
             WHERE SR.UID = ? AND SR.RSO_ID = E.RSO_ID
           )
@@ -464,9 +530,8 @@ router.get('/events/searchEvents', async (req, res) => {
       values.push(user.UnivID, UID);
     }
 
-    // Combine query
+    // Combine final query
     query += 'WHERE ' + where.join(' AND ');
-
     const [rows] = await pool.execute(query, values);
 
     if (rows.length === 0) {
@@ -484,6 +549,41 @@ router.get('/events/searchEvents', async (req, res) => {
   }
 });
 
+
+router.get('/events/pending', async (req, res) => {
+  try {
+    const [rows] = await pool.execute(`
+      SELECT * FROM Events WHERE EventType = 'Public' AND Approved = 'pending'
+    `);
+    res.status(200).json({ pendingEvents: rows });
+  } catch (err) {
+    console.error('Error fetching pending events:', err);
+    res.status(500).json({ error: 'Failed to fetch pending events' });
+  }
+});
+
+
+router.post('/events/approve', async (req, res) => {
+  const { EventID } = req.body;
+
+  if (!EventID) return res.status(400).json({ error: 'EventID is required' });
+
+  try {
+    const [result] = await pool.execute(
+      `UPDATE Events SET Approved = 'approved' WHERE EventID = ? AND EventType = 'Public'`,
+      [EventID]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Public event not found or already approved' });
+    }
+
+    res.status(200).json({ message: 'Event approved successfully' });
+  } catch (err) {
+    console.error('Error approving event:', err);
+    res.status(500).json({ error: 'Failed to approve event' });
+  }
+});
 
 
 
