@@ -649,7 +649,7 @@ router.post('/events/approve', async (req, res) => {
 
 // Add Comment
 // Gives success but empty output with no message. Fix needed?
-router.post('/events/addComment', async (req, res) => {
+router.post('/comments/addComment', async (req, res) => {
   const { EventID, UID, CommentText } = req.body;
 
   if (!EventID || !UID || !CommentText) {
@@ -676,7 +676,7 @@ router.post('/events/addComment', async (req, res) => {
 
 // Get Comments
 // empty output currently. fix needed?
-router.get('/events/getComments', async (req, res) => {
+router.get('/comments/getComments', async (req, res) => {
   const { EventID } = req.query;
 
   if (!EventID) {
@@ -697,10 +697,34 @@ router.get('/events/getComments', async (req, res) => {
   }
 });
 
+router.post('/comments/deleteComment', async (req, res) => {
+  const { CommentID, UID } = req.body;
+
+  if (!CommentID || !UID) {
+    return res.status(400).json({ error: 'CommentID and UID are required' });
+  }
+
+  try {
+    const [result] = await pool.execute(
+      'DELETE FROM Comments WHERE CommentID = ? AND UID = ?',
+      [CommentID, UID]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Comment not found or user unauthorized' });
+    }
+
+    res.status(200).json({ message: 'Comment deleted successfully' });
+
+  } catch (err) {
+    console.error('Error deleting comment:', err);
+    res.status(500).json({ error: 'Failed to delete comment', details: err.message });
+  }
+});
 
 
 // Edit Comments
-router.post('/events/editComment', async (req, res) => {
+router.post('/comments/editComment', async (req, res) => {
   const { CommentID, UID, CommentText } = req.body;
 
   if (!CommentID || !UID || !CommentText) {
