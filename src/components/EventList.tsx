@@ -12,7 +12,7 @@ function EventList() {
 
   // Fetch events from the search endpoint using UID and EventName as query parameters.
   const fetchEvents = async () => {
-    const UID = localStorage.getItem("UID") || "";
+    const UID = localStorage.getItem("userId") || "";
     if (!UID) {
       setStatusMessage("User not logged in");
       setIsLoading(false);
