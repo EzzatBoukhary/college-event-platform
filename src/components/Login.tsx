@@ -61,12 +61,12 @@ export async function hashPassword(password: string): Promise<string> {
                  const userId = json.user.UID || json.data[0]._id;
                  localStorage.setItem("userId", userId);
                  const uniID = json.user.UnivID;
-                 console.log('Stored uniId into localStorage:', uniID);
+                 console.log('Stored 2 uniId into localStorage:', uniID);
+                 console.log("Password 2", hashedPassword);
                  const userType = json.user.UserType;
                  localStorage.setItem("userType", userType);
                  setLoginResult("Login Successful");
                  onLogin();
-                 console.log("Password 2", hashedPassword);
                  navigate('/account-details');
 
              } else {
