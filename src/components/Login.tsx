@@ -37,7 +37,7 @@ export async function hashPassword(password: string): Promise<string> {
          }
 
          const hashedPassword = hashPassword(password);
-
+         console.log(hashedPassword);
          try {
              const response = await fetch('http://155.138.217.239:5000/api/login', {
                  method: 'POST',
