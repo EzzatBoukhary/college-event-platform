@@ -54,6 +54,63 @@ function RSODetails() {
         fetchRSODetails();
     }, [rsoId]);
 
+    const handleJoinRSO = async (e: React.MouseEvent, eventId: string) => {
+        e.stopPropagation(); // Prevent the parent click event from triggering navigation.
+        
+        // Assume the user's ID is stored in localStorage under "userId".
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          setStatusMessage("User not logged in.");
+          return;
+        }
+        
+        try {
+          const response = await fetch("http://155.138.217.239:5000/api/rso/addRSOStudent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ rsoId, userId }),
+          });
+    
+          if (response.ok) {
+            setStatusMessage("Successfully joined RSO!");
+          } else {
+            setStatusMessage("Failed to join the RSO.");
+          }
+        } catch (error) {
+          console.error("Error during join:", error);
+          setStatusMessage("An error occurred during join.");
+        }
+      };
+
+      const handleLeaveRSO = async (e: React.MouseEvent, eventId: string) => {
+        e.stopPropagation(); // Prevent the parent click event from triggering navigation.
+        
+        // Assume the user's ID is stored in localStorage under "userId".
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          setStatusMessage("User not logged in.");
+          return;
+        }
+        
+        try {
+          const response = await fetch("http://155.138.217.239:5000/api/rso/deleteRSOStudent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ rsoId, userId }),
+          });
+    
+          if (response.ok) {
+            setStatusMessage("Successfully left RSO!");
+          } else {
+            setStatusMessage("Failed to leave the RSO.");
+          }
+        } catch (error) {
+          console.error("Error during leave:", error);
+          setStatusMessage("An error occurred during leave.");
+        }
+      };
+
+    
     return (
         <div style={{ width: '100vw', height: '90vh', display: 'flex' , alignItems: 'center', justifyItems: 'center' }}>
             <Box
@@ -74,7 +131,7 @@ function RSODetails() {
                 }}
             >
                 <Typography variant="h4" className="inner-title" gutterBottom>
-                    Event Details
+                    RSO Details
                 </Typography>
 
                 {isLoading ? (
@@ -143,6 +200,24 @@ function RSODetails() {
                                 readOnly: true,
                             }}
                         />
+                        <Button
+                            id="backButton"
+                            className="ncButton"
+                            variant="contained"
+                            color="secondary"
+                            sx={{ marginTop: 2 }}
+                            onClick={(e) => handleJoinRSO(e, rsoId)}                        >
+                            Join RSO
+                        </Button>
+                        <Button
+                            id="backButton"
+                            className="ncButton"
+                            variant="contained"
+                            color="secondary"
+                            sx={{ marginTop: 2 }}
+                            onClick={(e) => handleLeaveRSO(e, rsoId)}                        >
+                            Leave RSO
+                        </Button>
                     </>
                 )}
                 {statusMessage && <Typography variant="body2" color="error">{statusMessage}</Typography>}
