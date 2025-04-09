@@ -3,22 +3,19 @@ import { Button, TextField, Typography, Box } from '@mui/material';
 import './GeneralDetails.css';
 
 function UniversityProfile() {
-    const [uniName, setUniName] = useState<string>('');
-    const [location, setLocation] = useState<string>('');
-    const [description, setDescription] = useState<string>('');
-    const [studentNum, setStudentNum] = useState<string>('');
-    const [statusMessage, setStatusMessage] = useState<string>('');
-    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [uniName, setUniName] = useState('');
+    const [location, setLocation] = useState('');
+    const [description, setDescription] = useState('');
+    const [studentNum, setStudentNum] = useState('');
+    const [domain, setDomain] = useState('');
+    const [statusMessage, setStatusMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Retrieve the university ID and the UserType
     const uniId = localStorage.getItem('UniID') || '';
-    const userType = localStorage.getItem('UserType');
+    const userType = localStorage.getItem('UserType'); // can be "Student", "Admin", or "SuperAdmin"
     const isSuperAdmin = userType === 'SuperAdmin';
 
-    console.log('Retrieved uniId from localStorage:', uniId);
-    console.log('UserType:', userType);
-
-    // Fetch the university's details from the backend
+    // Fetch the university's information
     useEffect(() => {
         const fetchUniDetails = async () => {
             if (!uniId) {
@@ -36,17 +33,18 @@ function UniversityProfile() {
                 if (response.ok) {
                     const data = await response.json();
                     const uni = data.university; // Adjust if backend wraps data differently
-                    console.log('Fetched user details:', uni);
 
                     setUniName(uni.Name || '');
                     setLocation(uni.Location || '');
                     setDescription(uni.Description || '');
                     setStudentNum(uni.NumStudents || '');
+                    setDomain(uni.EmailDomain || ''); 
+                    
                 } else {
                     setStatusMessage('Failed to fetch University details');
                 }
             } catch (error) {
-                console.error('Error fetching user details:', error);
+                console.error('Error fetching university details:', error);
                 setStatusMessage('An error occurred while fetching University details');
             } finally {
                 setIsLoading(false);
@@ -56,7 +54,7 @@ function UniversityProfile() {
         fetchUniDetails();
     }, [uniId]);
 
-    // Handle input changes
+    // Handlers for updating form fields
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUniName(e.target.value);
     };
@@ -69,42 +67,40 @@ function UniversityProfile() {
     const handleStudentNumChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setStudentNum(e.target.value);
     };
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setDomain(e.target.value);
+    };
 
     const handleSaveChanges = async () => {
-        // Only allow saving if the user is a SuperAdmin
+        // Extra check in case someone bypasses the UI
         if (!isSuperAdmin) {
-            setStatusMessage('You do not have permission to edit this page.');
+            setStatusMessage('Not authorized to create or modify universities.');
             return;
         }
 
-        const uniChangeData = {
-            uniId,
-            location,
-            description,
-            studentNum,
-        };
+        // Data for updating/creating the university information
 
         try {
-            const response = await fetch('https://155.138.217.239:5000/uniReset', {
+            const response = await fetch('https://155.138.217.239:5000/university/addUni', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(uniChangeData),
+                body: JSON.stringify({Name: uniName, Location: location, Description: description, NumStudents: studentNum, EmailDomain: domain}),
             });
 
             if (response.ok) {
-                setStatusMessage('University information changed successfully!');
+                setStatusMessage('University created successfully!');
             } else {
                 const errorData = await response.json();
-                setStatusMessage(errorData.message || 'Failed to change university information');
+                setStatusMessage(errorData.message || 'Failed to create university');
             }
         } catch (error) {
-            console.error('Error changing university information:', error);
-            setStatusMessage('An error occurred while changing university information');
+            console.error('Error creating university:', error);
+            setStatusMessage('An error occurred while creating university');
         }
     };
 
     return (
-        <div style={{ width: '100vw', height: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '100vw', height: '90vh', display: 'flex', alignItems: 'center', justifyItems: 'center' }}>
             <Box
                 className="boxDiv"
                 sx={{
@@ -116,7 +112,7 @@ function UniversityProfile() {
                     border: '8px solid #0F3874',
                     borderRadius: 2,
                     boxShadow: 3,
-                    width: '600px',
+                    width: '600vw',
                     height: '60vh',
                     backgroundColor: 'rgba(15, 56, 116, 0.85)',
                     overflowY: 'auto',
@@ -130,6 +126,11 @@ function UniversityProfile() {
                     <Typography variant="body1">Loading...</Typography>
                 ) : (
                     <>
+                    {isSuperAdmin && (
+                    <Typography variant="body2" color="error">
+                        To create a new university, input values below then press "Create University".
+                    </Typography>
+                )}
                         <TextField
                             className="custom-textfield"
                             id="Name"
@@ -140,7 +141,7 @@ function UniversityProfile() {
                             fullWidth
                             value={uniName}
                             onChange={handleNameChange}
-                            disabled={!isSuperAdmin}
+                            disabled={!isSuperAdmin}  // Disable if not SuperAdmin
                         />
                         <TextField
                             className="custom-textfield"
@@ -178,29 +179,37 @@ function UniversityProfile() {
                             onChange={handleStudentNumChange}
                             disabled={!isSuperAdmin}
                         />
+                        <TextField
+                            className="custom-textfield"
+                            id="domain"
+                            placeholder="gmail.com"
+                            type="text"
+                            variant="outlined"
+                            margin="normal"
+                            fullWidth
+                            value={domain}
+                            onChange={handleEmailChange}
+                            disabled={!isSuperAdmin}
+                        />
                         <Button
                             id="SaveChanges"
                             className="ncButton"
                             variant="contained"
                             color="primary"
                             onClick={handleSaveChanges}
-                            disabled={!isSuperAdmin}
+                            disabled={!isSuperAdmin} // Disable button if not SuperAdmin
                             sx={{ marginTop: 3, width: '100%' }}
                         >
-                            Save Changes
+                            Create University
                         </Button>
                     </>
                 )}
-                {statusMessage && (
-                    <Typography variant="body2" color="error">
-                        {statusMessage}
-                    </Typography>
-                )}
                 {!isSuperAdmin && (
-                    <Typography variant="body2" color="textSecondary" sx={{ marginTop: 2 }}>
-                        Note: Editing is restricted to SuperAdmin users.
+                    <Typography variant="body2" color="error">
+                        Only SuperAdmin users can create universities.
                     </Typography>
                 )}
+                {statusMessage && <Typography variant="body2" color="error">{statusMessage}</Typography>}
             </Box>
         </div>
     );
