@@ -20,7 +20,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ eventId }) => {
   const [message, setMessage] = useState<string>('');
 
   // Assume the current user's UID is stored in localStorage
-  const userUID = localStorage.getItem("UID") || '';
+  const userUID = localStorage.getItem("userId") || '';
 
   // Fetch the list of comments for the event
   const fetchComments = async () => {
