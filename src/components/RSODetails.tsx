@@ -32,7 +32,7 @@ function RSODetails() {
                 if (response.ok) {
                     const data = await response.json();
                     const rso = data; // Adjust if backend wraps data differently
-                    console.log('Fetched event details:', event);
+                    console.log('Fetched event details:', rso);
 
                     setRSOName(rso.Name || '');
                     // setUpcomingEvents(event.eventType || '');
