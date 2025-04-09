@@ -3,6 +3,16 @@ import { Button, TextField, Typography, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import './SignUp.css';
 
+export async function hashPassword(password: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+  }
+
+
 function SignUp() {
     const [Name, setName] = useState<string>('');
     const [Email, setEmail] = useState<string>('');
@@ -83,12 +93,15 @@ function SignUp() {
             try{
                 //api stuff:
                 // response will be the call
+
+                const hashedPassword = hashPassword(Password);
+
                 const response =  await fetch('http://155.138.217.239:5000/api/signup', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ UserType, Name, Email, Password })
+                    body: JSON.stringify({ UserType, Name, Email, hashedPassword })
                 });
                     
                 if (response.ok) {
