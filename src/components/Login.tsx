@@ -37,7 +37,7 @@ export async function hashPassword(password: string): Promise<string> {
          }
 
          const hashedPassword = hashPassword(password);
-         console.log(hashedPassword);
+         console.log("Password", hashedPassword);
          try {
              const response = await fetch('http://155.138.217.239:5000/api/login', {
                  method: 'POST',
@@ -66,6 +66,7 @@ export async function hashPassword(password: string): Promise<string> {
                  localStorage.setItem("userType", userType);
                  setLoginResult("Login Successful");
                  onLogin();
+                 console.log("Password 2", hashedPassword);
                  navigate('/account-details');
 
              } else {
