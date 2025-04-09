@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import './SignUp.css';
 
 function SignUp() {
-    const [name, setName] = useState<string>('');
-    const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
+    const [Name, setName] = useState<string>('');
+    const [Email, setEmail] = useState<string>('');
+    const [Password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
-    const [userType, setUserType] = useState<string>('');
+    const [UserType, setUserType] = useState<string>('');
     const [emailError, setEmailError] = useState<string>('');
     const [nameError, setNameError] = useState<string>('');
     const [userTypeError, setUserTypeError] = useState<string>('');
@@ -47,7 +47,7 @@ function SignUp() {
     const onSubmit = async () => {
         let valid = true;
         //check email:
-        if(!email || !emailRegex.test(email)) {
+        if(!Email || !emailRegex.test(Email)) {
             setEmailError("Invalid Email");
             valid = false
         }
@@ -57,11 +57,11 @@ function SignUp() {
         }
 
         //check password matching:
-        if(password != confirmPassword){
+        if(Password != confirmPassword){
             setConfirmPasswordError("Passwords do not match");
             valid = false;
         }
-        else if(password.length < 8) {
+        else if(Password.length < 8) {
             setConfirmPasswordError("Password must be at least 8 characters");
             valid = false;
         }
@@ -70,7 +70,7 @@ function SignUp() {
         }
 
         // check user type:
-        if(userType == "") {
+        if(UserType == "") {
             setUserTypeError("Must choose a user type");
             valid = false;
         } else {
@@ -88,7 +88,7 @@ function SignUp() {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ userType, name, email, password })
+                    body: JSON.stringify({ UserType, Name, Email, Password })
                 });
                     
                 if (response.ok) {
@@ -140,7 +140,7 @@ function SignUp() {
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    value={name}
+                    value={Name}
                     onChange={handleNameChange}
                     error={!!nameError}
                     helperText={nameError}
@@ -153,7 +153,7 @@ function SignUp() {
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    value={email}
+                    value={Email}
                     onChange={handleEmailChange}
                     error={!!emailError}
                     helperText={emailError}
@@ -166,7 +166,7 @@ function SignUp() {
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    value={password}
+                    value={Password}
                     onChange={handlePasswordChange}
                     error = {!!passwordError}
                     helperText = {passwordError}
@@ -188,7 +188,7 @@ function SignUp() {
                     <label htmlFor="userType">User Type</label>
                     <select
                         id="userType"
-                        value={userType}
+                        value={UserType}
                         onChange={handleUserType}
                         className={`form-control ${userTypeError ? 'is-invalid' : ''}`}
                     >
