@@ -31,8 +31,8 @@ function RSODetails() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    const rso = data[0]; // Adjust if backend wraps data differently
-                    console.log('Fetched event details:', rso);
+                    const rso = data.rso; // Adjust if backend wraps data differently
+                    console.log('Fetched RSO details:', rso);
 
                     setRSOName(rso.Name || '');
                     // setUpcomingEvents(event.eventType || '');
@@ -41,11 +41,11 @@ function RSODetails() {
                     setContactEmail(rso.ContactEmail || '');
 
                 } else {
-                    setStatusMessage('Failed to fetch event details');
+                    setStatusMessage('Failed to fetch RSO details');
                 }
             } catch (error) {
-                console.error('Error fetching event details:', error);
-                setStatusMessage('An error occurred while fetching event details');
+                console.error('Error fetching RSO details:', error);
+                setStatusMessage('An error occurred while fetching RSO details');
             } finally {
                 setIsLoading(false);
             }
@@ -55,7 +55,7 @@ function RSODetails() {
     }, [rsoId]);
 
     const handleJoinRSO = async (e: React.MouseEvent, eventId: string) => {
-        e.stopPropagation(); // Prevent the parent click event from triggering navigation.
+        e.stopPropagation(); // Prevent the parent click RSO from triggering navigation.
         
         // Assume the user's ID is stored in localStorage under "userId".
         const userId = localStorage.getItem("userId");
