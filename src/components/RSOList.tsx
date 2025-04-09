@@ -123,7 +123,7 @@ function RSOList() {
           {statusMessage}
         </Typography>
       )}
-      {(userType === "admin" || userType === "superadmin") && (
+      {(userType === "Admin" || userType === "Super Admin") && (
         <Button
           id="createButton"
           className="ncButton"
