@@ -109,7 +109,7 @@ function UniversityProfile() {
                     border: '8px solid #0F3874',
                     borderRadius: 2,
                     boxShadow: 3,
-                    width: '100vw',
+                    width: '200vw',
                     height: '60vh',
                     backgroundColor: 'rgba(15, 56, 116, 0.85)',
                     overflowY: 'auto',
