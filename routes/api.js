@@ -168,6 +168,29 @@ router.get('/users/:UID', async (req, res) => {
     res.status(500).json({ error: 'Failed to find user' });
   }
 });
+
+// Get University details
+router.get('/university/:UnivID', async (req, res) => {
+  const UnivID = req.params.UnivID;
+
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM Universities WHERE UnivID = ?',
+      [UnivID]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'University not found' });
+    }
+
+    res.status(200).json({ university: rows[0] });
+  } catch (err) {
+    console.error('Error fetching university details:', err);
+    res.status(500).json({ error: 'Failed to fetch university details', details: err.message });
+  }
+});
+
+
 // Add University (fixed)
 router.post('/university/addUni', async (req, res) => {
   const { Name, Location, Description, NumStudents, EmailDomain } = req.body;
@@ -408,16 +431,23 @@ router.get('/rso/searchRSOs', async (req, res) => {
 router.get('/rso/:RSO_ID', async (req, res) => {
   const RSO_ID = req.params.RSO_ID;
 
-  if (!RSO_ID) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM RSOs WHERE RSO_ID = ?',
+      [RSO_ID]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'RSO not found' });
+    }
+
+    res.status(200).json({ rso: rows[0] });
+  } catch (err) {
+    console.error('Error fetching RSO details:', err);
+    res.status(500).json({ error: 'Failed to fetch RSO details', details: err.message });
   }
-
-  const query = 'SELECT * FROM Students_RSOs WHERE RSO_ID=? LIMIT 1';
-  const values = [RSO_ID];
-
-  const [result] = await pool.execute(query, values);
-  res.status(200).json(result);
 });
+
 
 
 // TODO: RSOs dont have Contacts
