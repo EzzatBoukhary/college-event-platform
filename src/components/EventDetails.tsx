@@ -38,13 +38,19 @@ function EventDetails() {
                     console.log('Fetched event details:', event);
 
                     setEventName(event.EventName || '');
+                    console.log(eventName);
                     //setRSO(event.RSO || '');
                     //setEventType(event.EventType || '');
                     setDescription(event.Description || '');
+                    console.log(description);
                     setEventDate(event.EventDate || '');
+                    console.log(eventDate);
                     setEventTime(event.EventTime || '');
+                    console.log(eventTime);
                     setContactEmail(event.ContactEmail || '');
+                    console.log(contactEmail);
                     setContactPhone(event.ContactPhone || '');
+                    console.log(contactPhone);
 
                 } else {
                     setStatusMessage('Failed to fetch event details');
