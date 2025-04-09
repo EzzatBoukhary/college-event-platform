@@ -160,6 +160,7 @@ router.post('/university/addUni', async (req, res) => {
 router.post('/rso/addRSO', async (req, res) => {
   const { Name, Description, ContactEmail, ContactPhone, memberEmails } = req.body;
 
+  // Validation
   if (!Name || !Description || !ContactEmail || !ContactPhone || !Array.isArray(memberEmails)) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
@@ -169,7 +170,7 @@ router.post('/rso/addRSO', async (req, res) => {
   }
 
   try {
-    // Get UnivID from contact email
+    // 1. Determine UnivID from email domain
     const domain = ContactEmail.split('@')[1];
     const [[univ]] = await pool.execute(
       'SELECT UnivID FROM Universities WHERE EmailDomain = ?',
@@ -180,27 +181,27 @@ router.post('/rso/addRSO', async (req, res) => {
       return res.status(400).json({ error: 'University not found for provided email domain' });
     }
 
-    // Ensure an Admin is creating the RSO
+    // 2. Validate that the contact email belongs to an Admin in that university
     const [[adminUser]] = await pool.execute(
       'SELECT UID FROM Users WHERE Email = ? AND UserType = "Admin" AND UnivID = ?',
       [ContactEmail, univ.UnivID]
     );
 
     if (!adminUser) {
-      return res.status(403).json({ error: 'Only Admins from the same university can create RSOs' });
+      return res.status(403).json({ error: 'Only Admin users from the same university can create RSOs' });
     }
 
-    // Check if RSO with this name already exists at this university
-    const [existingRSO] = await pool.execute(
+
+    // 2. Check if RSO with same name already exists at this university
+    const [existing] = await pool.execute(
       'SELECT * FROM RSOs WHERE Name = ? AND UnivID = ?',
       [Name, univ.UnivID]
     );
-
-    if (existingRSO.length > 0) {
-      return res.status(409).json({ error: 'RSO already exists at this university' });
+    if (existing.length > 0) {
+      return res.status(409).json({ error: 'An RSO with this name already exists at your university' });
     }
 
-    // Validate that all member emails exist
+    // 3. Validate all member emails exist
     const placeholders = memberEmails.map(() => '?').join(',');
     const [members] = await pool.execute(
       `SELECT UID, Email FROM Users WHERE Email IN (${placeholders})`,
@@ -209,11 +210,11 @@ router.post('/rso/addRSO', async (req, res) => {
 
     if (members.length !== memberEmails.length) {
       const found = members.map(m => m.Email);
-      const missing = memberEmails.filter(email => !found.includes(email));
+      const missing = memberEmails.filter(e => !found.includes(e));
       return res.status(400).json({ error: 'Some member emails are not registered', missingEmails: missing });
     }
 
-    // Insert the new RSO
+    // 4. Insert the RSO
     const [rsoResult] = await pool.execute(
       'INSERT INTO RSOs (UnivID, Name, Description, ContactEmail, ContactPhone, Status) VALUES (?, ?, ?, ?, ?, ?)',
       [univ.UnivID, Name, Description, ContactEmail, ContactPhone, 'inactive']
@@ -221,7 +222,7 @@ router.post('/rso/addRSO', async (req, res) => {
 
     const RSO_ID = rsoResult.insertId;
 
-    // Add members
+    // 5. Add members to Students_RSOs
     for (const member of members) {
       await pool.execute(
         'INSERT INTO Students_RSOs (RSO_ID, UID) VALUES (?, ?)',
@@ -229,14 +230,13 @@ router.post('/rso/addRSO', async (req, res) => {
       );
     }
 
-    return res.status(201).json({ message: 'RSO created successfully', RSO_ID });
+    res.status(201).json({ message: 'RSO created successfully', RSO_ID });
 
   } catch (err) {
     console.error('Error creating RSO:', err);
-    return res.status(500).json({ error: 'Failed to create RSO', details: err.message });
+    res.status(500).json({ error: 'Failed to create RSO', details: err.message });
   }
 });
-
 
 router.post('/rso/delete', async (req, res) => {
   const { RSO_ID, AdminEmail } = req.body;
@@ -421,7 +421,7 @@ router.post('/events/addEvent', async (req, res) => {
     EventDate,
     EventTime,
     EventType,
-    RSO_ID, // Optional
+    RSO_Name,  // 👈 Replaces RSO_ID
     ContactEmail,
     ContactPhone
   } = req.body;
@@ -431,29 +431,38 @@ router.post('/events/addEvent', async (req, res) => {
   }
 
   try {
-    // 1. Get UnivID from email domain
+    // 1. Determine UnivID from ContactEmail domain
     const domain = ContactEmail.split('@')[1];
     const [[university]] = await pool.execute(
       'SELECT UnivID FROM Universities WHERE EmailDomain = ?',
       [domain]
     );
-    if (!university) return res.status(400).json({ error: 'University not found for email domain' });
+
+    if (!university) {
+      return res.status(400).json({ error: 'University not found for contact email domain' });
+    }
+
     const UnivID = university.UnivID;
 
-    // 2. Get AdminID
+    // 2. Verify ContactEmail belongs to an Admin
     const [[admin]] = await pool.execute(
-      'SELECT UID FROM Users WHERE Email = ? AND UserType = "Admin"',
-      [ContactEmail]
+      'SELECT UID FROM Users WHERE Email = ? AND UserType = "Admin" AND UnivID = ?',
+      [ContactEmail, UnivID]
     );
-    if (!admin) return res.status(400).json({ error: 'Admin user not found for provided contact email' });
+
+    if (!admin) {
+      return res.status(403).json({ error: 'Only Admins can create events' });
+    }
+
     const AdminID = admin.UID;
 
-    // 3. Get or insert Location
+    // 3. Get or create Location
     let LocID;
     const [[existingLoc]] = await pool.execute(
       'SELECT LocID FROM Locations WHERE Name = ?',
       [LocationName]
     );
+
     if (existingLoc) {
       LocID = existingLoc.LocID;
     } else {
@@ -464,21 +473,26 @@ router.post('/events/addEvent', async (req, res) => {
       LocID = locResult.insertId;
     }
 
-    // 4. Validate RSO_ID if RSO event
-    let finalRSO_ID = null;
+    // 4. Validate RSO_Name if EventType is RSO
+    let finalRSOID = null;
     if (EventType === 'RSO') {
-      if (!RSO_ID) return res.status(400).json({ error: 'RSO_ID is required for RSO events' });
+      if (!RSO_Name) {
+        return res.status(400).json({ error: 'RSO_Name is required for RSO events' });
+      }
 
       const [[rso]] = await pool.execute(
-        'SELECT * FROM RSOs WHERE RSO_ID = ? AND UnivID = ?',
-        [RSO_ID, UnivID]
+        'SELECT RSO_ID FROM RSOs WHERE Name = ? AND UnivID = ?',
+        [RSO_Name, UnivID]
       );
-      if (!rso) return res.status(400).json({ error: 'RSO not found or not in the same university' });
 
-      finalRSO_ID = RSO_ID;
+      if (!rso) {
+        return res.status(404).json({ error: `RSO '${RSO_Name}' not found in your university` });
+      }
+
+      finalRSOID = rso.RSO_ID;
     }
 
-    // 5. Determine approval status
+    // 5. Set Approval Status
     const Approved = (EventType === 'Public') ? 'pending' : 'approved';
 
     // 6. Insert event
@@ -489,15 +503,16 @@ router.post('/events/addEvent', async (req, res) => {
         ContactPhone, ContactEmail, RSO_ID, Approved
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
+
     const values = [
       UnivID, LocID, AdminID, EventType,
       EventName, Description, EventDate, EventTime,
-      ContactPhone, ContactEmail, finalRSO_ID, Approved
+      ContactPhone, ContactEmail, finalRSOID, Approved
     ];
 
     const [result] = await pool.execute(query, values);
 
-    res.status(201).json({
+    return res.status(201).json({
       message: 'Event created successfully',
       EventID: result.insertId,
       approvalStatus: Approved
@@ -505,9 +520,10 @@ router.post('/events/addEvent', async (req, res) => {
 
   } catch (err) {
     console.error('Error creating event:', err);
-    res.status(500).json({ error: 'Failed to create event', details: err.message });
+    return res.status(500).json({ error: 'Failed to create event', details: err.message });
   }
 });
+
 
 
 
