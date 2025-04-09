@@ -4,7 +4,7 @@ import './GeneralDetails.css';
 
 function CreateEvent() {
   const [EventName, setName] = useState('');
-  const [RSO_ID, setRSO] = useState('');
+  const [RSO_Name, setRSO] = useState('');
   const [Description, setDescription] = useState('');
   const [LocationName, setLocation] = useState('');
   const [EventDate, setDate] = useState('');
@@ -36,7 +36,7 @@ function CreateEvent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           EventName,
-          RSO_ID,
+          RSO_Name,
           Description,
           ContactEmail,
           ContactPhone,
@@ -116,7 +116,7 @@ function CreateEvent() {
               variant="outlined"
               margin="normal"
               fullWidth
-              value={RSO_ID}
+              value={RSO_Name}
               onChange={(e) => setRSO(e.target.value)}
             />
             <TextField
