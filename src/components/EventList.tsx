@@ -18,7 +18,7 @@ function EventList() {
       setIsLoading(false);
       return;
     }
-    
+
     setIsLoading(true);
     try {
       const response = await fetch(
@@ -132,11 +132,23 @@ function EventList() {
         color="secondary"
         sx={{ marginTop: 2 }}
         onClick={() => {
-        navigate('/create-event')
+          navigate('/create-event')
         }}
+      >
+        Create Event
+      </Button>
+
+      {localStorage.getItem("userType") === "SuperAdmin" && (
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ marginTop: 2, marginLeft: 2 }}
+          onClick={() => navigate("/pending-events")}
         >
-          Create Event
+          Pending Events
         </Button>
+      )}
+
     </div>
   );
 }
