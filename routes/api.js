@@ -275,32 +275,32 @@ router.post('/rso/delete', async (req, res) => {
   }
 
   try {
-    // 1. Get the Admin user
-    // Check if user is Admin or SuperAdmin
-const [[user]] = await pool.execute(
-  'SELECT UID, UnivID, UserType FROM Users WHERE Email = ?',
-  [AdminEmail]
-);
+    // 1. Get the user by email
+    const [[user]] = await pool.execute(
+      'SELECT UID, UnivID, UserType FROM Users WHERE Email = ?',
+      [AdminEmail]
+    );
 
-if (!user || (user.UserType !== 'Admin' && user.UserType !== 'SuperAdmin')) {
-  return res.status(403).json({ error: 'Only Admins or SuperAdmins can delete RSOs' });
-}
+    if (!user || (user.UserType !== 'Admin' && user.UserType !== 'SuperAdmin')) {
+      return res.status(403).json({ error: 'Only Admins or SuperAdmins can delete RSOs' });
+    }
 
-
-    // 2. Check if RSO exists and belongs to the admin's university
+    // 2. Check if RSO exists
     const [[rso]] = await pool.execute(
       'SELECT * FROM RSOs WHERE RSO_ID = ?',
       [RSO_ID]
     );
+
     if (!rso) {
       return res.status(404).json({ error: 'RSO not found' });
     }
 
-    if (rso.UnivID !== admin.UnivID) {
-      return res.status(403).json({ error: 'You can only delete RSOs from your own university' });
+    // 3. Enforce ownership match for Admins only
+    if (user.UserType === 'Admin' && rso.UnivID !== user.UnivID) {
+      return res.status(403).json({ error: 'Admins can only delete RSOs from their own university' });
     }
 
-    // 3. Delete the RSO
+    // ✅ TEMPORARY OVERRIDE: SuperAdmins may delete any RSO
     await pool.execute('DELETE FROM RSOs WHERE RSO_ID = ?', [RSO_ID]);
 
     res.status(200).json({ message: 'RSO deleted successfully' });
@@ -310,6 +310,7 @@ if (!user || (user.UserType !== 'Admin' && user.UserType !== 'SuperAdmin')) {
     res.status(500).json({ error: 'Failed to delete RSO', details: err.message });
   }
 });
+
 
 
 
