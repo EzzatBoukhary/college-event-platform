@@ -104,15 +104,6 @@ function PendingEventList() {
           {statusMessage}
         </Typography>
       )}
-      <Button
-        id="goBack"
-        className="ncButton"
-        variant="outlined"
-        sx={{ mt: 3 }}
-        onClick={() => navigate("/dashboard")}
-      >
-        Back to Dashboard
-      </Button>
     </div>
   );
 }

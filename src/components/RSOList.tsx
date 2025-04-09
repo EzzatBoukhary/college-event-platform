@@ -88,6 +88,20 @@ function RSOList() {
           onChange={handleSearchChange}
         />
       </form>
+      {(userType === "Admin" || userType === "Super Admin") && (
+        <Button
+          id="createButton"
+          className="ncButton"
+          variant="contained"
+          color="secondary"
+          sx={{ marginTop: 2 }}
+          onClick={() => {
+            navigate('/create-rso');
+          }}
+        >
+          Create RSO
+        </Button>
+      )}
       {isLoading ? (
         <Typography variant="body1">Loading RSOs...</Typography>
       ) : (
@@ -123,20 +137,7 @@ function RSOList() {
           {statusMessage}
         </Typography>
       )}
-      {(userType === "Admin" || userType === "Super Admin") && (
-        <Button
-          id="createButton"
-          className="ncButton"
-          variant="contained"
-          color="secondary"
-          sx={{ marginTop: 2 }}
-          onClick={() => {
-            navigate('/create-rso');
-          }}
-        >
-          Create RSO
-        </Button>
-      )}
+      
     </div>
   );
 }
