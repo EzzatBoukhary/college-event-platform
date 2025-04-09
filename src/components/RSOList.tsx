@@ -5,25 +5,33 @@ import { useNavigate } from "react-router-dom";
 
 function RSOList() {
   const [RSOs, setRSOs] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const navigate = useNavigate();
 
-  // Fetch RSOs from the backend using the searchRSOs endpoint
-  const fetchRSOs = async (rsoName: string) => {
+  // Fetch RSOs from the search endpoint using UID and RSOName as query parameters.
+  const fetchRSOs = async () => {
+    const UID = localStorage.getItem("userId") || "";
+    if (!UID) {
+      setStatusMessage("User not logged in");
+      setIsLoading(false);
+      return;
+    }
+    
     setIsLoading(true);
     try {
-      // Build query param if search term is provided, otherwise leave it empty.
-      const queryParam = rsoName ? `?EventName=${encodeURIComponent(rsoName)}` : "";
-      const response = await fetch(`http://155.138.217.239:5000/api/rso/searchRSOs`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await fetch(
+        `http://155.138.217.239:5000/api/rso/searchRSOs?UID=${UID}&Name=${encodeURIComponent(searchTerm)}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
       if (response.ok) {
-        const data = await response.json();
-        // The endpoint returns an array of RSOs
-        setRSOs(data);
+        const RSOsData = await response.json();
+        setRSOs(RSOsData);
       } else {
         setStatusMessage("Failed to fetch RSOs");
       }
@@ -35,45 +43,56 @@ function RSOList() {
     }
   };
 
-  // Fetch all RSOs on initial render
+  // Debounce the search so the API call only happens after the user stops typing.
   useEffect(() => {
-    fetchRSOs("");
+    const timer = setTimeout(() => {
+      fetchRSOs();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Also fetch RSOs when the component mounts.
+  useEffect(() => {
+    fetchRSOs();
   }, []);
 
-  // Handle form submit for searching RSOs
-  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    fetchRSOs(searchTerm);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
   };
 
-  // When a user clicks an RSO, save its id and redirect to RSODetails page.
-  const handleEventClick = (eventId: string) => {
-    localStorage.setItem("eventId", eventId);
-    navigate("/rso-details");
+  const handleRSOClick = (RSOId: string) => {
+    localStorage.setItem("RSOId", RSOId);
+    navigate("/rso-details")
   };
 
   return (
-    <div id="event-list-container">
-      <h2 id="event-list-title">RSO List</h2>
-      <form id="event-search-form" onSubmit={handleSearchSubmit}>
+    <div id="RSO-list-container">
+      <h2 id="RSO-list-title">RSO List</h2>
+      <form
+        id="RSO-search-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          fetchRSOs();
+        }}
+      >
         <label>Search for RSOs</label>
         <input
           type="text"
           id="search-bar"
           placeholder="Search RSO List"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearchChange}
         />
       </form>
       {isLoading ? (
         <Typography variant="body1">Loading RSOs...</Typography>
       ) : (
-        <div id="events-container">
+        <div id="RSOs-container">
           {RSOs.length > 0 ? (
-            RSOs.map((RSOs) => (
+            RSOs.map((RSO) => (
               <Box
-                key={RSOs.RSO_ID}
-                className="event-item"
+                key={RSO.id || RSO.RSOID || RSO.RSOName}
+                className="RSO-item"
                 sx={{
                   border: "1px solid #0F3874",
                   borderRadius: 2,
@@ -82,19 +101,17 @@ function RSOList() {
                   width: "80%",
                   cursor: "pointer",
                 }}
-                onClick={() => handleEventClick(RSOs.id)}
+                onClick={() =>
+                  handleRSOClick(RSO.id || RSO.RSOID || "")
+                }
               >
-                <Typography variant="h6">
-                  {RSOs.RSO_ID}
-                </Typography>
-                <Typography variant="body2">
-                  {RSOs.Name || RSOs.Name}
-                </Typography>
+                <Typography variant="h6">{RSO.RSOName}</Typography>
+                <Typography variant="body2">{RSO.Description}</Typography>
                 <Typography variant="caption">
-                  {RSOs.ContactEmail} at {RSOs.ContactEmail}
+                  On {RSO.RSODate} at {RSO.RSOTime}
                 </Typography>
-                <Typography variant="caption">
-                  {RSOs.ContactPhone} at {RSOs.ContactPhone}
+                <Typography>
+                  Email us at: {RSO.ContactEmail} or Call us at: {RSO.ContactPhone}
                 </Typography>
               </Box>
             ))
