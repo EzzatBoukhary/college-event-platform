@@ -2,21 +2,16 @@ import React, { useState } from 'react';
 import { Button, TextField, Typography, Box } from '@mui/material';
 import './GeneralDetails.css';
 
-function CreateRSO() {
-  // State declarations for the RSO data and the member emails.
+function RSODetails() {
   const [RSOName, setRSOName] = useState('');
   const [description, setDescription] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [contactEmail, setContactEmail] = useState('');
-  const [email1, setEmail1] = useState('');
-  const [email2, setEmail2] = useState('');
-  const [email3, setEmail3] = useState('');
-  const [email4, setEmail4] = useState('');
-  const [email5, setEmail5] = useState('');
+  // A single input for member emails separated by a space.
+  const [memberEmailsInput, setMemberEmailsInput] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Handle creating the RSO.
   const handleCreateRSO = async (e: React.MouseEvent) => {
     e.preventDefault();
 
@@ -24,14 +19,14 @@ function CreateRSO() {
     const userId = localStorage.getItem("userId");
     const userType = localStorage.getItem("userType");
 
-    // Allow only logged-in users who are not Students.
+    // Only allow logged-in users who are NOT Students.
     if (!userId || userType === "Student") {
       setStatusMessage("User not logged in or invalid permissions.");
       return;
     }
 
-    // Build the memberEmails array.
-    const memberEmails = [email1, email2, email3, email4, email5];
+    // Split the input string on spaces and remove any extra whitespace.
+    const memberEmails = memberEmailsInput.split(' ').filter(email => email.trim() !== '');
 
     try {
       const response = await fetch("http://155.138.217.239:5000/api/rso/addRSO", {
@@ -59,7 +54,7 @@ function CreateRSO() {
   };
 
   return (
-    <div style={{ width: '100vw', height: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ width: '800vw', height: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Box
         className="boxDiv"
         sx={{
@@ -70,7 +65,7 @@ function CreateRSO() {
           border: '8px solid #0F3874',
           borderRadius: 2,
           boxShadow: 3,
-          width: '600px', // Changed to pixels for a more realistic width.
+          width: '1100px',
           minHeight: '60vh',
           backgroundColor: 'rgba(15, 56, 116, 0.85)',
           overflowY: 'auto',
@@ -124,56 +119,15 @@ function CreateRSO() {
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
             />
-            {/* Member Emails: at least 5 are required */}
             <TextField
               className="custom-textfield"
-              id="memberEmail1"
-              placeholder="Member Email 1"
+              id="memberEmails"
+              placeholder="Member Emails (separated by a space)"
               variant="outlined"
               margin="normal"
               fullWidth
-              value={email1}
-              onChange={(e) => setEmail1(e.target.value)}
-            />
-            <TextField
-              className="custom-textfield"
-              id="memberEmail2"
-              placeholder="Member Email 2"
-              variant="outlined"
-              margin="normal"
-              fullWidth
-              value={email2}
-              onChange={(e) => setEmail2(e.target.value)}
-            />
-            <TextField
-              className="custom-textfield"
-              id="memberEmail3"
-              placeholder="Member Email 3"
-              variant="outlined"
-              margin="normal"
-              fullWidth
-              value={email3}
-              onChange={(e) => setEmail3(e.target.value)}
-            />
-            <TextField
-              className="custom-textfield"
-              id="memberEmail4"
-              placeholder="Member Email 4"
-              variant="outlined"
-              margin="normal"
-              fullWidth
-              value={email4}
-              onChange={(e) => setEmail4(e.target.value)}
-            />
-            <TextField
-              className="custom-textfield"
-              id="memberEmail5"
-              placeholder="Member Email 5"
-              variant="outlined"
-              margin="normal"
-              fullWidth
-              value={email5}
-              onChange={(e) => setEmail5(e.target.value)}
+              value={memberEmailsInput}
+              onChange={(e) => setMemberEmailsInput(e.target.value)}
             />
             <Button
               id="createRSOButton"
@@ -197,4 +151,4 @@ function CreateRSO() {
   );
 }
 
-export default CreateRSO;
+export default RSODetails;
