@@ -359,19 +359,24 @@ router.get('/rso/searchRSOs', async (req, res) => {
 
   try {
     // Get user's university
-    const [[user]] = await pool.execute('SELECT UnivID FROM Users WHERE UID = ?', [UID]);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    const [[user]] = await pool.execute(
+      'SELECT UnivID FROM Users WHERE UID = ?',
+      [UID]
+    );
 
-    // Search for RSOs in the same university
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user.UnivID) return res.status(400).json({ error: 'User is not associated with a university' });
+
     const [rows] = await pool.execute(
       'SELECT * FROM RSOs WHERE UnivID = ? AND Name LIKE ?',
       [user.UnivID, `%${Name || ''}%`]
     );
 
-    res.status(200).json(rows);
+    return res.status(200).json(rows);
+
   } catch (err) {
     console.error('Error searching RSOs:', err);
-    res.status(500).json({ error: 'Failed to search RSOs' });
+    return res.status(500).json({ error: 'Failed to search RSOs', details: err.message });
   }
 });
 
