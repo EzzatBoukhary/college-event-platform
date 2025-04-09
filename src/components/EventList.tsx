@@ -4,6 +4,7 @@ import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 function EventList() {
+  const userId = localStorage.getItem('userId');
   const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [statusMessage, setStatusMessage] = useState<string>("");
@@ -19,6 +20,7 @@ function EventList() {
       const response = await fetch(`http://155.138.217.239:5000/api/events/searchEvents`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, eventName })
       });
       if (response.ok) {
         const data = await response.json();
@@ -62,7 +64,7 @@ function EventList() {
           id="search-bar"
           placeholder="Search Event List"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => fetchEvents(e.target.value)}
         />
       </form>
       {isLoading ? (
