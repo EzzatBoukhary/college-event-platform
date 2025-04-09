@@ -12,6 +12,15 @@
     font-weight: bold;
 }
 
+#events-container {
+    /* Adjust the max-height based on your layout and other content; this is just an example */
+    max-height: calc(100vh - 250px);  
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px; /* Give some space for the scrollbar if needed */
+  }
+  
+
 #event-search-form label{
     color: #0F3874;
     font-size: 20px;

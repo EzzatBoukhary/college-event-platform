@@ -84,6 +84,29 @@ function EventList() {
           onChange={handleSearchChange}
         />
       </form>
+      <Button
+        id="createButton"
+        className="ncButton"
+        variant="contained"
+        color="secondary"
+        sx={{ marginTop: 2 }}
+        onClick={() => {
+          navigate('/create-event')
+        }}
+      >
+        Create Event
+      </Button>
+
+      {localStorage.getItem("userType") === "SuperAdmin" && (
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ marginTop: 2, marginLeft: 2 }}
+          onClick={() => navigate("/pending-events")}
+        >
+          Pending Events
+        </Button>
+      )}
       {isLoading ? (
         <Typography variant="body1">Loading events...</Typography>
       ) : (
@@ -125,30 +148,6 @@ function EventList() {
           {statusMessage}
         </Typography>
       )}
-      <Button
-        id="createButton"
-        className="ncButton"
-        variant="contained"
-        color="secondary"
-        sx={{ marginTop: 2 }}
-        onClick={() => {
-          navigate('/create-event')
-        }}
-      >
-        Create Event
-      </Button>
-
-      {localStorage.getItem("userType") === "SuperAdmin" && (
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ marginTop: 2, marginLeft: 2 }}
-          onClick={() => navigate("/pending-events")}
-        >
-          Pending Events
-        </Button>
-      )}
-
     </div>
   );
 }
