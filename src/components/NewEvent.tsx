@@ -149,6 +149,26 @@ function CreateEvent() {
               value={EventTime}
               onChange={(e) => setTime(e.target.value)}
             />
+            <TextField
+              className="custom-textfield"
+              id="time"
+              placeholder="Time"
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              value={ContactEmail}
+              onChange={(e) => setContactEmail(e.target.value)}
+            />
+            <TextField
+              className="custom-textfield"
+              id="time"
+              placeholder="Time"
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              value={ContactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+            />
               <div className="form-group">
                     <label htmlFor="userType">Event Type</label>
                     <select
