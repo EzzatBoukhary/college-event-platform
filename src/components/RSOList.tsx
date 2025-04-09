@@ -66,10 +66,10 @@ function RSOList() {
   };
 
   return (
-    <div id="RSO-list-container">
-      <h2 id="RSO-list-title">RSO List</h2>
+    <div id="event-list-container">
+      <h2 id="event-list-title">RSO List</h2>
       <form
-        id="RSO-search-form"
+        id="event-search-form"
         onSubmit={(e) => {
           e.preventDefault();
           fetchRSOs();
@@ -87,12 +87,12 @@ function RSOList() {
       {isLoading ? (
         <Typography variant="body1">Loading RSOs...</Typography>
       ) : (
-        <div id="RSOs-container">
+        <div id="events-container">
           {RSOs.length > 0 ? (
             RSOs.map((RSO) => (
               <Box
                 key={RSO.id || RSO.RSOID || RSO.RSOName}
-                className="RSO-item"
+                className="event-item"
                 sx={{
                   border: "1px solid #0F3874",
                   borderRadius: 2,
