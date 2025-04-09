@@ -195,7 +195,7 @@ function SignUp() {
                     <option value="">Select User Type</option>
                     <option value="Student">Student</option>
                     <option value="Admin">Admin</option>
-                    <option value="Super Admin">Super Admin</option>
+                    <option value="SuperAdmin">Super Admin</option>
                 </select>
                 {userTypeError && <div className="invalid-feedback">{userTypeError}</div>}
                 </div>
