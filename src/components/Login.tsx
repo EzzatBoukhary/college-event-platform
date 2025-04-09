@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import { Button, TextField, Typography, Box } from '@mui/material';
 import { useNavigate} from 'react-router-dom'
 import './Login.css';
+//const { compare } = require("bcrypt");
 
 interface LoginProps {
     onLogin: () => void;
@@ -34,7 +35,16 @@ interface LoginProps {
                  },
                  body: JSON.stringify({ email, password })
              });
-
+            
+            //  let match = await compare(password, user.password);
+            //  if (!match) {
+            //    return res.status(400).json({
+            //      status: "failed",
+            //      data: [],
+            //      message: "Invalid password.",
+            //    });
+            //  }
+            
              if (response.ok) {
                  const json = await response.json();
                  const userId = json.user.UID || json.data[0]._id;

@@ -58,6 +58,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ eventId }) => {
           CommentText: newCommentText
         })
       });
+      console.log("ID", eventId, "user", userUID, "text", newCommentText);
       if (response.ok) {
         const data = await response.json();
         setMessage(data.message);
