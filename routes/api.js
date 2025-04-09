@@ -137,57 +137,6 @@ router.post('/signup', async (req, res) => {
 });
 
 
-router.get('/users/details/:UID', async (req, res) => {
-  try {
-
-    // Create the SQL query with a parameter
-    const query = 'SELECT * FROM Users WHERE UID=? LIMIT 1';
-
-    // Execute the query
-    const [rows] = await pool.execute(query, [req.params.UID]);
-
-    // Check if user exists
-    if (rows.length === 0) {
-      return res.status(400).json({
-        status: "failed",
-        //data: [],
-        message: "User not found.",
-      });
-    }
-
-    // Return the user
-    res.status(200).json({
-      message: 'User retrieved successfully',
-      user: rows[0]
-    });
-    // find user in database
-    res.end(); // just for safety
-  } catch (error) {
-    console.error('Error finding user:', error);
-    res.status(500).json({ error: 'Failed to find user' });
-  }
-});
-
-// Get University details
-router.get('/university/details/:UnivID', async (req, res) => {
-  const UnivID = req.params.UnivID;
-
-  try {
-    const [rows] = await pool.execute(
-      'SELECT * FROM Universities WHERE UnivID = ?',
-      [UnivID]
-    );
-
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'University not found' });
-    }
-
-    res.status(200).json({ university: rows[0] });
-  } catch (err) {
-    console.error('Error fetching university details:', err);
-    res.status(500).json({ error: 'Failed to fetch university details', details: err.message });
-  }
-});
 
 
 // Add University (fixed)
@@ -426,26 +375,7 @@ router.get('/rso/searchRSOs', async (req, res) => {
   }
 });
 
-// Get RSO Details
-router.get('/rso/details/:RSO_ID', async (req, res) => {
-  const RSO_ID = req.params.RSO_ID;
 
-  try {
-    const [rows] = await pool.execute(
-      'SELECT * FROM RSOs WHERE RSO_ID = ?',
-      [RSO_ID]
-    );
-
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'RSO not found' });
-    }
-
-    res.status(200).json({ rso: rows[0] });
-  } catch (err) {
-    console.error('Error fetching RSO details:', err);
-    res.status(500).json({ error: 'Failed to fetch RSO details', details: err.message });
-  }
-});
 
 
 
@@ -670,22 +600,6 @@ router.post('/events/approve', async (req, res) => {
 });
 
 
-
-// Get Event Details
-router.get('/events/details/:EventID', async (req, res) => {
-  const EventID = req.params.EventID;
-
-  if (!EventID) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  const query = 'SELECT * FROM Events WHERE EventID=? LIMIT 1';
-  const values = [EventID];
-
-  const [result] = await pool.execute(query, values);
-  res.status(200).json(result);
-});
-
 // Add Rating
 /* {
   "EventID": 1,
@@ -811,30 +725,92 @@ router.post('/events/editComment', async (req, res) => {
   }
 });
 
-router.post('/events/deleteComment', async (req, res) => {
-  const { CommentID, UID } = req.body;
-
-  if (!CommentID || !UID) {
-    return res.status(400).json({ error: 'CommentID and UID are required' });
-  }
-
+router.get('/users/:UID', async (req, res) => {
   try {
-    const [result] = await pool.execute(
-      'DELETE FROM Comments WHERE CommentID = ? AND UID = ?',
-      [CommentID, UID]
-    );
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Comment not found or user unauthorized' });
+    // Create the SQL query with a parameter
+    const query = 'SELECT * FROM Users WHERE UID=? LIMIT 1';
+
+    // Execute the query
+    const [rows] = await pool.execute(query, [req.params.UID]);
+
+    // Check if user exists
+    if (rows.length === 0) {
+      return res.status(400).json({
+        status: "failed",
+        //data: [],
+        message: "User not found.",
+      });
     }
 
-    res.status(200).json({ message: 'Comment deleted successfully' });
-
-  } catch (err) {
-    console.error('Error deleting comment:', err);
-    res.status(500).json({ error: 'Failed to delete comment', details: err.message });
+    // Return the user
+    res.status(200).json({
+      message: 'User retrieved successfully',
+      user: rows[0]
+    });
+    // find user in database
+    res.end(); // just for safety
+  } catch (error) {
+    console.error('Error finding user:', error);
+    res.status(500).json({ error: 'Failed to find user' });
   }
 });
 
+// Get University details
+router.get('/university/:UnivID', async (req, res) => {
+  const UnivID = req.params.UnivID;
+
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM Universities WHERE UnivID = ?',
+      [UnivID]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'University not found' });
+    }
+
+    res.status(200).json({ university: rows[0] });
+  } catch (err) {
+    console.error('Error fetching university details:', err);
+    res.status(500).json({ error: 'Failed to fetch university details', details: err.message });
+  }
+});
+
+// Get Event Details
+router.get('/events/:EventID', async (req, res) => {
+  const EventID = req.params.EventID;
+
+  if (!EventID) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const query = 'SELECT * FROM Events WHERE EventID=? LIMIT 1';
+  const values = [EventID];
+
+  const [result] = await pool.execute(query, values);
+  res.status(200).json(result);
+});
+
+// Get RSO Details
+router.get('/rso/:RSO_ID', async (req, res) => {
+  const RSO_ID = req.params.RSO_ID;
+
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM RSOs WHERE RSO_ID = ?',
+      [RSO_ID]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'RSO not found' });
+    }
+
+    res.status(200).json({ rso: rows[0] });
+  } catch (err) {
+    console.error('Error fetching RSO details:', err);
+    res.status(500).json({ error: 'Failed to fetch RSO details', details: err.message });
+  }
+});
 
 export default router;
