@@ -34,7 +34,7 @@ function EventDetails() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    const event = data.data; // Adjust if backend wraps data differently
+                    const event = data; // Adjust if backend wraps data differently
                     console.log('Fetched event details:', event);
 
                     setEventName(event.EventName || '');
