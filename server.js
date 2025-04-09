@@ -55,7 +55,7 @@ testConnection();
 app.use(express.static(path.join(__dirname, 'dist'))); // For Vite
 
 // Handle SPA routing - serve index.html for any route not found
-app.get('*', (req, res) => {
+app.get('/', (req, res) => {
   // res.sendFile(path.join(__dirname, 'client/build/index.html')); // For React
   // OR
   res.sendFile(path.join(__dirname, 'dist', './public/index.html')); // For Vite
