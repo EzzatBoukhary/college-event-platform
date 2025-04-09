@@ -174,64 +174,129 @@ router.post('/university/addUni', async (req, res) => {
 // Add RSO (rewritten according to your comments)
 router.post('/rso/addRSO', async (req, res) => {
   const { Name, Description, ContactEmail, ContactPhone, memberEmails } = req.body;
-  if (!Name || !Description || !ContactEmail || !ContactPhone || !memberEmails || memberEmails.length < 5) {
-    return res.status(400).json({ error: 'Missing required fields or insufficient members' });
+
+  if (!Name || !Description || !ContactEmail || !ContactPhone || !Array.isArray(memberEmails)) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  if (memberEmails.length < 5) {
+    return res.status(400).json({ error: 'At least 5 member emails are required to create an RSO' });
   }
 
   try {
+    // Step 1: Get UnivID from ContactEmail domain
     const emailDomain = ContactEmail.split('@')[1];
-    const [[univ]] = await pool.execute('SELECT UnivID FROM Universities WHERE EmailDomain=?', [emailDomain]);
+    const [[univ]] = await pool.execute(
+      'SELECT UnivID FROM Universities WHERE EmailDomain = ?',
+      [emailDomain]
+    );
+
     if (!univ) {
       return res.status(400).json({ error: 'University not found for provided email domain' });
     }
 
+    // Step 2: Check that all member emails are registered users
+    const placeholders = memberEmails.map(() => '?').join(',');
+    const [registeredUsers] = await pool.execute(
+      `SELECT UID, Email FROM Users WHERE Email IN (${placeholders})`,
+      memberEmails
+    );
+
+    const registeredEmails = registeredUsers.map(user => user.Email);
+    const missingEmails = memberEmails.filter(email => !registeredEmails.includes(email));
+
+    if (missingEmails.length > 0) {
+      return res.status(400).json({
+        error: 'Some member emails are not registered. All members must be signed up before creating an RSO.',
+        missingEmails
+      });
+    }
+
+    // Step 3: Insert the RSO
     const [rsoResult] = await pool.execute(
       'INSERT INTO RSOs(UnivID, Name, ContactEmail, ContactPhone, Status) VALUES (?, ?, ?, ?, ?)',
       [univ.UnivID, Name, ContactEmail, ContactPhone, 'inactive']
     );
 
     const RSO_ID = rsoResult.insertId;
-    for (const email of memberEmails) {
-      const [[user]] = await pool.execute('SELECT UID FROM Users WHERE Email=?', [email]);
-      if (user) {
-        await pool.execute('INSERT INTO Students_RSOs(RSO_ID, UID) VALUES (?, ?)', [RSO_ID, user.UID]);
-      }
+
+    // Step 4: Add all registered members to Students_RSOs
+    for (const user of registeredUsers) {
+      await pool.execute('INSERT INTO Students_RSOs(RSO_ID, UID) VALUES (?, ?)', [RSO_ID, user.UID]);
     }
 
-    res.status(201).json({ message: 'RSO created', RSO_ID });
+    res.status(201).json({ message: 'RSO created successfully', RSO_ID });
 
   } catch (err) {
-    res.status(500).json({ error: 'Failed to create RSO', details: err });
+    console.error('Error creating RSO:', err);
+    res.status(500).json({ error: 'Failed to create RSO', details: err.message });
   }
 });
+
 
 // Join RSO (fixed)
 router.post('/rso/join', async (req, res) => {
   const { RSO_ID, UID } = req.body;
   if (!RSO_ID || !UID) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: 'RSO_ID and UID are required' });
   }
+
   try {
-    await pool.execute('INSERT INTO Students_RSOs(RSO_ID, UID) VALUES (?, ?)', [RSO_ID, UID]);
+    // Check if user is already in the RSO
+    const [check] = await pool.execute(
+      'SELECT * FROM Students_RSOs WHERE RSO_ID = ? AND UID = ?',
+      [RSO_ID, UID]
+    );
+
+    if (check.length > 0) {
+      return res.status(409).json({ message: 'User is already a member of this RSO' });
+    }
+
+    // Add the student to the RSO
+    await pool.execute(
+      'INSERT INTO Students_RSOs(RSO_ID, UID) VALUES (?, ?)',
+      [RSO_ID, UID]
+    );
+
     res.status(201).json({ message: 'Joined RSO successfully' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to join RSO', details: err });
+    console.error('Error joining RSO:', err);
+    res.status(500).json({ error: 'Failed to join RSO' });
   }
 });
+
 
 // Leave RSO (fixed)
 router.post('/rso/leave', async (req, res) => {
   const { RSO_ID, UID } = req.body;
   if (!RSO_ID || !UID) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: 'RSO_ID and UID are required' });
   }
+
   try {
-    await pool.execute('DELETE FROM Students_RSOs WHERE RSO_ID=? AND UID=?', [RSO_ID, UID]);
-    res.status(200).json({ message: 'Left RSO successfully' });
+    // Check if user is a member first
+    const [check] = await pool.execute(
+      'SELECT * FROM Students_RSOs WHERE RSO_ID = ? AND UID = ?',
+      [RSO_ID, UID]
+    );
+
+    if (check.length === 0) {
+      return res.status(404).json({ message: 'User is not a member of this RSO' });
+    }
+
+    // Proceed with removal
+    await pool.execute(
+      'DELETE FROM Students_RSOs WHERE RSO_ID = ? AND UID = ?',
+      [RSO_ID, UID]
+    );
+
+    res.status(200).json({ message: 'User removed from RSO successfully' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to leave RSO', details: err });
+    console.error('Error removing user from RSO:', err);
+    res.status(500).json({ error: 'Failed to remove user from RSO' });
   }
 });
+
 
 // Search RSOs
 // query string does not make sense. It should only have an RSO name as input and it should only return RSOs in the user's university.
@@ -411,6 +476,12 @@ router.get('/events/:EventID', async (req, res) => {
       if (Rating < 1 || Rating > 5) {
         return res.status(400).json({ error: 'Rating must be between 1 and 5' });
       }
+
+      const [[event]] = await pool.execute('SELECT * FROM Events WHERE EventID = ?', [EventID]);
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+
   
       // Insert or update rating (a user can only rate once per event)
       const query = `
@@ -490,9 +561,10 @@ router.post('/events/editComment', async (req, res) => {
     const [result] = await pool.execute(query, values);
 
 
-    if(result.affectedRows == 0){
-      return res.status(400).json({ error: 'No Changed Made' });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'No matching comment found for this user' });
     }
+    
     // Return success response
     res.status(201).json({
       message: 'Comment Changed successfully',
