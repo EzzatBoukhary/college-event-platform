@@ -210,6 +210,17 @@ router.post('/rso/addRSO', async (req, res) => {
       return res.status(400).json({ error: 'University not found for provided email domain' });
     }
 
+    // 2. Validate that the contact email belongs to an Admin in that university
+    const [[adminUser]] = await pool.execute(
+      'SELECT UID FROM Users WHERE Email = ? AND UserType = "Admin" AND UnivID = ?',
+      [ContactEmail, univ.UnivID]
+    );
+
+    if (!adminUser) {
+      return res.status(403).json({ error: 'Only Admin users from the same university can create RSOs' });
+    }
+
+
     // 2. Check if RSO with same name already exists at this university
     const [existing] = await pool.execute(
       'SELECT * FROM RSOs WHERE Name = ? AND UnivID = ?',
@@ -256,6 +267,46 @@ router.post('/rso/addRSO', async (req, res) => {
   }
 });
 
+router.post('/rso/delete', async (req, res) => {
+  const { RSO_ID, AdminEmail } = req.body;
+
+  if (!RSO_ID || !AdminEmail) {
+    return res.status(400).json({ error: 'RSO_ID and AdminEmail are required' });
+  }
+
+  try {
+    // 1. Get the Admin user
+    const [[admin]] = await pool.execute(
+      'SELECT UID, UnivID FROM Users WHERE Email = ? AND UserType = "Admin"',
+      [AdminEmail]
+    );
+    if (!admin) {
+      return res.status(403).json({ error: 'Only Admin users can delete RSOs' });
+    }
+
+    // 2. Check if RSO exists and belongs to the admin's university
+    const [[rso]] = await pool.execute(
+      'SELECT * FROM RSOs WHERE RSO_ID = ?',
+      [RSO_ID]
+    );
+    if (!rso) {
+      return res.status(404).json({ error: 'RSO not found' });
+    }
+
+    if (rso.UnivID !== admin.UnivID) {
+      return res.status(403).json({ error: 'You can only delete RSOs from your own university' });
+    }
+
+    // 3. Delete the RSO
+    await pool.execute('DELETE FROM RSOs WHERE RSO_ID = ?', [RSO_ID]);
+
+    res.status(200).json({ message: 'RSO deleted successfully' });
+
+  } catch (err) {
+    console.error('Error deleting RSO:', err);
+    res.status(500).json({ error: 'Failed to delete RSO', details: err.message });
+  }
+});
 
 
 
