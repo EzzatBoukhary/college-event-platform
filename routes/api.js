@@ -421,34 +421,36 @@ router.get('/events/searchEvents', async (req, res) => {
   if (!UID) return res.status(400).json({ error: 'UID is required' });
 
   try {
-    // Get user details
-    const [[user]] = await pool.execute('SELECT UserType, UnivID FROM Users WHERE UID = ?', [UID]);
+    // 1. Fetch the user
+    const [[user]] = await pool.execute(
+      'SELECT UserType, UnivID FROM Users WHERE UID = ?',
+      [UID]
+    );
     if (!user) return res.status(404).json({ error: 'User not found' });
 
+    // 2. Build query
     let query = `SELECT DISTINCT E.* FROM Events E `;
-    const values = [];
-
-    // Base filter: event name (partial match)
-    query += 'WHERE E.EventName LIKE ? ';
-    values.push(`%${EventName || ''}%`);
+    let where = [`E.EventName LIKE ?`];
+    let values = [`%${EventName || ''}%`];
 
     if (user.UserType === 'Student') {
-      // Students see: Public, Private (same univ), and RSO events (where they're members)
-      query += `
-        AND (
-          E.EventType = 'Public' 
-          OR (E.EventType = 'Private' AND E.UnivID = ?) 
-          OR (
-            E.EventType = 'RSO' AND EXISTS (
-              SELECT 1 FROM Students_RSOs SR
-              JOIN RSOs R ON SR.RSO_ID = R.RSO_ID
-              WHERE SR.UID = ? AND R.UnivID = E.UnivID
-            )
+      // Limit to events the student can see
+      where.push(`(
+        E.EventType = 'Public'
+        OR (E.EventType = 'Private' AND E.UnivID = ?)
+        OR (
+          E.EventType = 'RSO'
+          AND EXISTS (
+            SELECT 1 FROM Students_RSOs SR
+            WHERE SR.UID = ? AND SR.RSO_ID = E.RSO_ID
           )
         )
-      `;
+      )`);
       values.push(user.UnivID, UID);
     }
+
+    // Combine query
+    query += 'WHERE ' + where.join(' AND ');
 
     const [rows] = await pool.execute(query, values);
 
@@ -460,11 +462,13 @@ router.get('/events/searchEvents', async (req, res) => {
     }
 
     res.status(200).json({ events: rows });
+
   } catch (err) {
     console.error('Error searching Events:', err);
-    res.status(500).json({ error: 'Failed to search Events' });
+    res.status(500).json({ error: 'Failed to search Events', details: err.message });
   }
 });
+
 
 
 
