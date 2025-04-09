@@ -41,7 +41,7 @@ export function hashPassword(password: string): string {
                  headers: {
                      'Content-Type': 'application/json'
                  },
-                 body: JSON.stringify({ email, hashedPassword })
+                 body: JSON.stringify({ email, password: hashedPassword })
              });
             
             //  let match = await compare(password, user.password);

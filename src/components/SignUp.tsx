@@ -98,7 +98,7 @@ function SignUp() {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ UserType, Name, Email, hashedPassword })
+                    body: JSON.stringify({ UserType, Name, Email, Password: hashedPassword })
                 });
                     
                 if (response.ok) {
