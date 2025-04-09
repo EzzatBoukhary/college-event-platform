@@ -64,7 +64,7 @@ function CreateEvent() {
 };
 
   return (
-    <div style={{ width: '800vw', height: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflowY: 'auto'}}>
       <Box
         className="boxDiv"
         sx={{
@@ -151,8 +151,8 @@ function CreateEvent() {
             />
             <TextField
               className="custom-textfield"
-              id="time"
-              placeholder="Time"
+              id="email"
+              placeholder="Contact Email"
               variant="outlined"
               margin="normal"
               fullWidth
@@ -161,8 +161,8 @@ function CreateEvent() {
             />
             <TextField
               className="custom-textfield"
-              id="time"
-              placeholder="Time"
+              id="phone number"
+              placeholder="Contact Phone"
               variant="outlined"
               margin="normal"
               fullWidth
