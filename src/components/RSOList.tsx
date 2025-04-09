@@ -31,7 +31,7 @@ function RSOList() {
 
       if (response.ok) {
         const RSOsData = await response.json();
-        setRSOs(RSOsData);
+        setRSOs(RSOsData.rows);
       } else {
         setStatusMessage("Failed to fetch RSOs");
       }
