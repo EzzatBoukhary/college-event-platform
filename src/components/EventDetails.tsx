@@ -41,7 +41,12 @@ function EventDetails() {
                     //setRSO(event.RSO || '');
                     //setEventType(event.EventType || '');
                     setDescription(event.Description || '');
-                    setEventDate(event.EventDate || '');
+                    if (event.EventDate) {
+                        const formattedDate = new Date(event.EventDate).toISOString().split('T')[0];
+                        setEventDate(formattedDate);
+                    } else {
+                        setEventDate('');
+                    }
                     setEventTime(event.EventTime || '');
                     setContactEmail(event.ContactEmail || '');
                     setContactPhone(event.ContactPhone || '');
