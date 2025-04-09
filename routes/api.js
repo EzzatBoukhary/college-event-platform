@@ -285,7 +285,7 @@ router.post('/rso/deleteRSOStudent', async (req, res) => {
 });
 
 // Search RSOs
-// query string does not make sense. It should only have an RSO name as input
+// query string does not make sense. It should only have an RSO name as input and it should only return RSOs in the user's university.
 router.get('/rso/searchRSOs', async (req, res) => {
   try {
     // Extract search parameters from the query string
@@ -385,7 +385,7 @@ router.post('/events/addEvent', async (req, res) => {
 });
 
 // Search Events
-// input to this endpoint should only be the name of the event. The backend should filter out events that the user is not supposed to see based on their user type and the event type (public, private, RSO).
+// input to this endpoint should only be the name of the event. Empty name returns the entire list. Partial or exact matching either works. The backend should filter out events that the user is not supposed to see based on their user type and the event type (public, private, RSO).
 router.get('/events/searchEvents', async (req, res) => {
   try {
 
