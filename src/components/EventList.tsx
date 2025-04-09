@@ -132,7 +132,7 @@ function EventList() {
         color="secondary"
         sx={{ marginTop: 2 }}
         onClick={() => {
-        navigate('/event-details')
+        navigate('/create-event')
         }}
         >
           Create Event
