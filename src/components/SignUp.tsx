@@ -3,15 +3,12 @@ import { Button, TextField, Typography, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import './SignUp.css';
 
-export async function hashPassword(password: string): Promise<string> {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
-    return hashHex;
-  }
+import { sha256 } from 'js-sha256';
 
+export function hashPassword(password: string): string {
+    return sha256(password); // returns hex string
+  }
+  
 
 function SignUp() {
     const [Name, setName] = useState<string>('');

@@ -8,14 +8,11 @@ interface LoginProps {
     onLogin: () => void;
 }
 
-// export async function hashPassword(password: string): Promise<string> {
-//     const encoder = new TextEncoder();
-//     const data = encoder.encode(password);
-//     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-//     const hashArray = Array.from(new Uint8Array(hashBuffer));
-//     const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
-//     return hashHex;
-//   }
+import { sha256 } from 'js-sha256';
+
+export function hashPassword(password: string): string {
+  return sha256(password); // returns hex string
+}
 
  function Login({ onLogin }: LoginProps) {
 
@@ -36,15 +33,15 @@ interface LoginProps {
              return;
          }
 
-        //  const hashedPassword = hashPassword(password);
-        //  console.log("Password", hashedPassword);
+         const hashedPassword = hashPassword(password);
+         console.log("Password", hashedPassword);
          try {
              const response = await fetch('http://155.138.217.239:5000/api/login', {
                  method: 'POST',
                  headers: {
                      'Content-Type': 'application/json'
                  },
-                 body: JSON.stringify({ email, password })
+                 body: JSON.stringify({ email, hashedPassword })
              });
             
             //  let match = await compare(password, user.password);
