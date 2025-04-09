@@ -14,7 +14,7 @@ function EventDetails() {
     const [statusMessage, setStatusMessage] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
-    const eventId = localStorage.getItem('eventId') || '';
+    const eventId = localStorage.getItem("eventId") || '';
     console.log('Retrieved eventId from localStorage:', eventId);
 
     // Fetch the event's information

@@ -11,7 +11,7 @@ function RSODetails() {
     const [statusMessage, setStatusMessage] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
-    const rsoId = localStorage.getItem('rsoId') || '';
+    const rsoId = localStorage.getItem("rsoId") || '';
     console.log('Retrieved rsoId from localStorage:', rsoId);
 
     // Fetch the event's information
@@ -65,7 +65,7 @@ function RSODetails() {
         }
         
         try {
-          const response = await fetch("http://155.138.217.239:5000/api/rso/addRSOStudent", {
+          const response = await fetch("http://155.138.217.239:5000/api/rso/join", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ rsoId, userId }),
@@ -93,7 +93,7 @@ function RSODetails() {
         }
         
         try {
-          const response = await fetch("http://155.138.217.239:5000/api/rso/deleteRSOStudent", {
+          const response = await fetch("http://155.138.217.239:5000/api/rso/leave", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ rsoId, userId }),
