@@ -10,7 +10,7 @@ function UniversityProfile() {
     const [statusMessage, setStatusMessage] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
-    const uniId = localStorage.getItem('uniId') || '';
+    const uniId = localStorage.getItem('UniID') || '';
     console.log('Retrieved uniId from localStorage:', uniId);
 
     // Fetch the user's information
