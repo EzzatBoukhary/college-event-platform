@@ -130,7 +130,6 @@ router.post('/signup', async (req, res) => {
       message: 'User created successfully',
       userId: result.insertId
     });
-
   } catch (err) {
     console.error('Error during signup:', err);
     res.status(500).json({ error: 'Failed to create user', details: err.message });
@@ -738,19 +737,28 @@ router.get('/events/:EventID', async (req, res) => {
 // Gives success but empty output with no message. Fix needed?
 router.post('/events/addComment', async (req, res) => {
   const { EventID, UID, CommentText } = req.body;
+
   if (!EventID || !UID || !CommentText) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: 'Missing required fields: EventID, UID, CommentText' });
   }
+
   try {
     const [result] = await pool.execute(
-      'INSERT INTO Comments(EventID, UID, CommentText) VALUES (?, ?, ?)',
+      'INSERT INTO Comments (EventID, UID, CommentText) VALUES (?, ?, ?)',
       [EventID, UID, CommentText]
     );
-    res.status(201).json({ message: 'Comment added', CommentID: result.insertId });
+
+    res.status(201).json({
+      message: 'Comment added successfully',
+      CommentID: result.insertId
+    });
+
   } catch (err) {
-    res.status(500).json({ error: 'Failed to add comment', details: err });
+    console.error('Error adding comment:', err);
+    res.status(500).json({ error: 'Failed to add comment', details: err.message });
   }
 });
+
 
 // Get Comments
 // empty output currently. fix needed?
@@ -758,53 +766,75 @@ router.get('/events/getComments', async (req, res) => {
   const { EventID } = req.query;
 
   if (!EventID) {
-    return res.status(400).json({ error: 'EventID is required' });
+    return res.status(400).json({ error: 'EventID is required in query parameters' });
   }
 
   try {
-    const [rows] = await pool.execute('SELECT * FROM Comments WHERE EventID = ?', [EventID]);
-    res.status(200).json(rows);
+    const [comments] = await pool.execute(
+      'SELECT * FROM Comments WHERE EventID = ? ORDER BY Timestamp DESC',
+      [EventID]
+    );
+
+    res.status(200).json({ comments });
+
   } catch (err) {
     console.error('Error fetching comments:', err);
-    res.status(500).json({ error: 'Failed to fetch comments' });
+    res.status(500).json({ error: 'Failed to fetch comments', details: err.message });
   }
 });
+
 
 
 // Edit Comments
 router.post('/events/editComment', async (req, res) => {
+  const { CommentID, UID, CommentText } = req.body;
+
+  if (!CommentID || !UID || !CommentText) {
+    return res.status(400).json({ error: 'Missing required fields: CommentID, UID, CommentText' });
+  }
+
   try {
-
-    // Extract values from the JSON body
-    const {CommentID, UID, CommentText} = req.body;
-
-    // Validate that all required fields are present
-    if (!CommentID || !UID || !CommentText) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Create the SQL query with parameterized values
-    const query = 'UPDATE Comments SET CommentText = ? WHERE CommentID = ? AND UID = ?';
-    const values = [CommentText, CommentID, UID];
-
-    // Execute the query
-    const [result] = await pool.execute(query, values);
-
+    const [result] = await pool.execute(
+      'UPDATE Comments SET CommentText = ?, Timestamp = CURRENT_TIMESTAMP WHERE CommentID = ? AND UID = ?',
+      [CommentText, CommentID, UID]
+    );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'No matching comment found for this user' });
+      return res.status(404).json({ error: 'Comment not found or user unauthorized' });
     }
-    
-    // Return success response
-    res.status(201).json({
-      message: 'Comment Changed successfully',
-      insertID: result.insertId,
-    });
 
-  } catch (error) {
-    console.error('Error Changing Comment:', error);
-    res.status(500).json({ error: 'Failed to Change Comment' });
+    res.status(200).json({ message: 'Comment updated successfully' });
+
+  } catch (err) {
+    console.error('Error editing comment:', err);
+    res.status(500).json({ error: 'Failed to update comment', details: err.message });
   }
 });
+
+router.post('/events/deleteComment', async (req, res) => {
+  const { CommentID, UID } = req.body;
+
+  if (!CommentID || !UID) {
+    return res.status(400).json({ error: 'CommentID and UID are required' });
+  }
+
+  try {
+    const [result] = await pool.execute(
+      'DELETE FROM Comments WHERE CommentID = ? AND UID = ?',
+      [CommentID, UID]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Comment not found or user unauthorized' });
+    }
+
+    res.status(200).json({ message: 'Comment deleted successfully' });
+
+  } catch (err) {
+    console.error('Error deleting comment:', err);
+    res.status(500).json({ error: 'Failed to delete comment', details: err.message });
+  }
+});
+
 
 export default router;
