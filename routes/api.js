@@ -276,13 +276,16 @@ router.post('/rso/delete', async (req, res) => {
 
   try {
     // 1. Get the Admin user
-    const [[admin]] = await pool.execute(
-      'SELECT UID, UnivID FROM Users WHERE Email = ? AND UserType = "Admin"',
-      [AdminEmail]
-    );
-    if (!admin) {
-      return res.status(403).json({ error: 'Only Admin users can delete RSOs' });
-    }
+    // Check if user is Admin or SuperAdmin
+const [[user]] = await pool.execute(
+  'SELECT UID, UnivID, UserType FROM Users WHERE Email = ?',
+  [AdminEmail]
+);
+
+if (!user || (user.UserType !== 'Admin' && user.UserType !== 'SuperAdmin')) {
+  return res.status(403).json({ error: 'Only Admins or SuperAdmins can delete RSOs' });
+}
+
 
     // 2. Check if RSO exists and belongs to the admin's university
     const [[rso]] = await pool.execute(
