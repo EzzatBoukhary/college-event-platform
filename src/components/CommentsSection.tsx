@@ -189,7 +189,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ eventId }) => {
                 <Typography variant="body1" sx={{ marginTop: 1, marginBottom: 1 }}>
                   {comment.CommentText}
                 </Typography>
-                {/* Only show edit/delete buttons if the comment belongs to the current user */}
+                {/* Only show edit/delete buttons if the comment belongs to the current user */} 
                 {comment.UID === userUID && (
                   <Box>
                     <Button 
