@@ -206,7 +206,7 @@ function EventDetails() {
             />
 
             {/* Rating Section */}
-            <Box sx={{ marginTop: 2, display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ marginTop: 2, display: 'flex', alignItems: 'center', color: 'white' }}>
               <Typography variant="h6" sx={{ marginRight: 2 }}>
                 Rate this Event:
               </Typography>
@@ -229,7 +229,7 @@ function EventDetails() {
             )}
           </>
         )}
-        {statusMessage && <Typography variant="body2" color="error">{statusMessage}</Typography>}
+        {statusMessage && <Typography variant="body2" color="white">{statusMessage}</Typography>}
       </Box>
 
       {/* Comments Section */}
