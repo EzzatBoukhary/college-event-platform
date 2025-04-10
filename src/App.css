@@ -54,6 +54,8 @@ html, body {
   border-radius: 1vw;
   max-width: 30vw;
   width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: 0 0.5vw 1vw rgba(0, 0, 0, 0.3);
   margin: 2vh auto;
   min-height: 35vh;
