@@ -78,6 +78,7 @@ function EventDetails() {
           border: '8px solid #0F3874',
           borderRadius: 2,
           boxShadow: 3,
+          overflowY: 'auto',
           width: '600px',
           backgroundColor: 'rgba(15, 56, 116, 0.85)',
           marginBottom: 4,
