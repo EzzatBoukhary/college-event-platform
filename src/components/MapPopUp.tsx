@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import './MapPopup.css';
+import './MapPopUp.css';
 
 interface MapPopupProps {
   onClose: () => void;
