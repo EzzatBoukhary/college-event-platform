@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, TextField } from '@mui/material';
+import { Box, Typography, TextField, Button } from '@mui/material';
+import Rating from '@mui/material/Rating';
 import CommentsSection from './CommentsSection';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 import './GeneralDetails.css';
 
 function EventDetails() {
@@ -19,6 +21,9 @@ function EventDetails() {
   const [locationDesc, setLocationDesc] = useState('');
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
+
+  const [userRating, setUserRating] = useState<number | null>(0);
+  const [ratingStatus, setRatingStatus] = useState<string>('');
 
   const eventId = localStorage.getItem('eventId') || '';
 
@@ -47,7 +52,6 @@ function EventDetails() {
           setContactEmail(event.ContactEmail || '');
           setContactPhone(event.ContactPhone || '');
 
-          // Location info
           setLocationName(event.LocationName || '');
           setLocationDesc(event.LocationDescription || '');
           setLatitude(event.Latitude || null);
@@ -66,9 +70,40 @@ function EventDetails() {
     fetchEventDetails();
   }, [eventId]);
 
+  const handleRatingSubmit = async () => {
+    if (!userRating || userRating < 1 || userRating > 5) {
+      setRatingStatus('Please select a rating between 1 and 5.');
+      return;
+    }
+
+    const userId = localStorage.getItem('userID') || '1';
+
+    try {
+      const response = await fetch('http://155.138.217.239:5000/api/events/addRating', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          EventID: eventId,
+          UID: userId,
+          Rating: userRating,
+        }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setRatingStatus(result.message);
+      } else {
+        setRatingStatus(result.error || 'Failed to submit rating.');
+      }
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+      setRatingStatus('Error submitting rating.');
+    }
+  };
+
   return (
-  <div style={{ width: '100vw', height: '100vh', overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-    <Box
+<div style={{ width: '100vw', padding: '20px', display: 'flex', flexDirection: 'column', overflowY: 'auto', alignItems: 'center' }}>
+<Box
         className="boxDiv"
         sx={{
           display: 'flex',
@@ -78,7 +113,6 @@ function EventDetails() {
           border: '8px solid #0F3874',
           borderRadius: 2,
           boxShadow: 3,
-          overflowY: 'auto',
           width: '600px',
           backgroundColor: 'rgba(15, 56, 116, 0.85)',
           marginBottom: 4,
@@ -99,13 +133,33 @@ function EventDetails() {
             <TextField className="custom-textfield" placeholder="Contact Phone" fullWidth value={contactPhone} InputProps={{ readOnly: true }} />
             <TextField className="custom-textfield" placeholder="Contact Email" fullWidth value={contactEmail} InputProps={{ readOnly: true }} />
 
-            {/* Location display */}
+            {/* Rating */}
+            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', color: 'white' }}>
+              <Typography variant="h6" sx={{ mr: 2 }}>
+                Rate this Event:
+              </Typography>
+              <Rating
+                name="event-rating"
+                value={userRating || 0}
+                onChange={(event, newValue) => setUserRating(newValue)}
+              />
+              <Button onClick={handleRatingSubmit} variant="contained" sx={{ ml: 2 }}>
+                Submit Rating
+              </Button>
+            </Box>
+            {ratingStatus && (
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                {ratingStatus}
+              </Typography>
+            )}
+
+            {/* Location Info + Map */}
             {locationName && (
               <>
-                <Typography variant="h6" sx={{ mt: 2 }}>
+                <Typography variant="h6" sx={{ mt: 3 }}>
                   Location: {locationName}
                 </Typography>
-                <Typography variant="body2">{locationDesc}</Typography>
+                <Typography variant="body2" sx={{ color: '#fff' }}>{locationDesc}</Typography>
               </>
             )}
 
@@ -121,7 +175,7 @@ function EventDetails() {
             )}
           </>
         )}
-        {statusMessage && <Typography variant="body2" color="error">{statusMessage}</Typography>}
+        {statusMessage && <Typography variant="body2" color="white">{statusMessage}</Typography>}
       </Box>
 
       {/* Comments */}

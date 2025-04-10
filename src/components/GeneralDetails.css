@@ -13,10 +13,3 @@
     background-color: #d1bda2;
     /* background-color: #eae1d5;*/
 }
-
-.leaflet-container {
-    height: 100% !important;
-    width: 100% !important;
-    z-index: 0;
-  }
-  
