@@ -23,38 +23,45 @@ function CreateEvent() {
 
   const handleCreateEvent = async (e: React.MouseEvent) => {
     e.preventDefault();
-
+  
+    const payload = {
+      EventName,
+      RSO_Name,
+      Description,
+      ContactEmail,
+      ContactPhone,
+      EventDate,
+      EventTime,
+      EventType,
+      LocationName,
+      LocationDescription,
+      Latitude: coordinates?.latitude,
+      Longitude: coordinates?.longitude,
+    };
+  
+    console.log("Attempting to create event with payload:", payload); // <-- Add this
+  
     try {
       const response = await fetch("http://155.138.217.239:5000/api/events/addEvent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          EventName,
-          RSO_Name,
-          Description,
-          ContactEmail,
-          ContactPhone,
-          EventDate,
-          EventTime,
-          EventType,
-          LocationName,
-          LocationDescription,
-          Latitude: coordinates?.latitude,
-          Longitude: coordinates?.longitude,
-        }),
+        body: JSON.stringify(payload),
       });
-
+  
+      const responseData = await response.json(); // <-- Add this
+      console.log("Server response:", responseData); // <-- Add this
+  
       if (response.ok) {
         setStatusMessage("Successfully created event!");
       } else {
-        const errorData = await response.json();
-        setStatusMessage("Failed to create event: " + (errorData.error || "Unknown error"));
+        setStatusMessage("Failed to create event: " + (responseData.error || "Unknown error"));
       }
     } catch (error: any) {
       console.error("Error during creation:", error);
       setStatusMessage("An error occurred during creation.");
     }
   };
+  
 
   const handleEventType = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setType(e.target.value);
