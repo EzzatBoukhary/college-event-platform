@@ -447,35 +447,30 @@ router.get('/rso/searchRSOs', async (req, res) => {
 router.post('/events/addEvent', async (req, res) => {
   const {
     EventName,
+    RSO_Name,
     Description,
-    LocationName,
+    ContactEmail,
+    ContactPhone,
+    EventType,
     EventDate,
     EventTime,
-    EventType,
-    RSO_Name,  // 👈 Replaces RSO_ID
-    ContactEmail,
-    ContactPhone
+    LocationName,
+    LocationDescription,
+    Latitude,
+    Longitude
   } = req.body;
 
-  if (!EventName || !Description || !LocationName || !EventDate || !EventTime || !EventType || !ContactEmail || !ContactPhone) {
+  if (!EventName || !Description || !ContactEmail || !ContactPhone || !EventDate || !EventTime || !EventType || !LocationName || !LocationDescription || !Latitude || !Longitude) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
   try {
-    // 1. Determine UnivID from ContactEmail domain
     const domain = ContactEmail.split('@')[1];
-    const [[university]] = await pool.execute(
-      'SELECT UnivID FROM Universities WHERE EmailDomain = ?',
-      [domain]
-    );
+    const [[univ]] = await pool.execute('SELECT UnivID FROM Universities WHERE EmailDomain = ?', [domain]);
+    if (!univ) return res.status(400).json({ error: 'University not found from email domain' });
 
-    if (!university) {
-      return res.status(400).json({ error: 'University not found for contact email domain' });
-    }
+    const UnivID = univ.UnivID;
 
-    const UnivID = university.UnivID;
-
-    // 2. Verify ContactEmail belongs to an Admin
     const [[admin]] = await pool.execute(
       'SELECT UID FROM Users WHERE Email = ? AND UserType = "Admin" AND UnivID = ?',
       [ContactEmail, UnivID]
@@ -487,73 +482,45 @@ router.post('/events/addEvent', async (req, res) => {
 
     const AdminID = admin.UID;
 
-    // 3. Get or create Location
-    let LocID;
-    const [[existingLoc]] = await pool.execute(
-      'SELECT LocID FROM Locations WHERE Name = ?',
-      [LocationName]
+    // Check or insert location
+    const [[existingLoc] = []] = await pool.execute(
+      'SELECT LocID FROM Locations WHERE Name = ? AND Description = ? AND Latitude = ? AND Longitude = ?',
+      [LocationName, LocationDescription, Latitude, Longitude]
     );
 
-    if (existingLoc) {
-      LocID = existingLoc.LocID;
-    } else {
-      const [locResult] = await pool.execute(
-        'INSERT INTO Locations (Name, Address, Latitude, Longitude) VALUES (?, ?, ?, ?)',
-        [LocationName, 'TBD', 0.0, 0.0]
+    let LocID = existingLoc?.LocID;
+    if (!LocID) {
+      const [inserted] = await pool.execute(
+        'INSERT INTO Locations (Name, Description, Latitude, Longitude) VALUES (?, ?, ?, ?)',
+        [LocationName, LocationDescription, Latitude, Longitude]
       );
-      LocID = locResult.insertId;
+      LocID = inserted.insertId;
     }
 
-    // 4. Validate RSO_Name if EventType is RSO
-    let finalRSOID = null;
+    // Optional RSO_ID if applicable
+    let RSO_ID = null;
     if (EventType === 'RSO') {
-      if (!RSO_Name) {
-        return res.status(400).json({ error: 'RSO_Name is required for RSO events' });
-      }
-
-      const [[rso]] = await pool.execute(
-        'SELECT RSO_ID FROM RSOs WHERE Name = ? AND UnivID = ?',
-        [RSO_Name, UnivID]
-      );
-
-      if (!rso) {
-        return res.status(404).json({ error: `RSO '${RSO_Name}' not found in your university` });
-      }
-
-      finalRSOID = rso.RSO_ID;
+      if (!RSO_Name) return res.status(400).json({ error: 'RSO name is required for RSO events' });
+      const [[rso]] = await pool.execute('SELECT RSO_ID FROM RSOs WHERE Name = ? AND UnivID = ?', [RSO_Name, UnivID]);
+      if (!rso) return res.status(404).json({ error: 'RSO not found' });
+      RSO_ID = rso.RSO_ID;
     }
 
-    // 5. Set Approval Status
     const Approved = (EventType === 'Public') ? 'pending' : 'approved';
 
-    // 6. Insert event
-    const query = `
-      INSERT INTO Events (
-        UnivID, LocID, AdminID, EventType,
-        EventName, Description, EventDate, EventTime,
-        ContactPhone, ContactEmail, RSO_ID, Approved
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    const [result] = await pool.execute(
+      'INSERT INTO Events (UnivID, LocID, AdminID, EventType, EventName, Description, EventDate, EventTime, ContactPhone, ContactEmail, RSO_ID, Approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [UnivID, LocID, AdminID, EventType, EventName, Description, EventDate, EventTime, ContactPhone, ContactEmail, RSO_ID, Approved]
+    );
 
-    const values = [
-      UnivID, LocID, AdminID, EventType,
-      EventName, Description, EventDate, EventTime,
-      ContactPhone, ContactEmail, finalRSOID, Approved
-    ];
-
-    const [result] = await pool.execute(query, values);
-
-    return res.status(201).json({
-      message: 'Event created successfully',
-      EventID: result.insertId,
-      approvalStatus: Approved
-    });
+    return res.status(201).json({ message: 'Event created', EventID: result.insertId });
 
   } catch (err) {
     console.error('Error creating event:', err);
     return res.status(500).json({ error: 'Failed to create event', details: err.message });
   }
 });
+
 
 
 

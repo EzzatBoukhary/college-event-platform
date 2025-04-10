@@ -1,4 +1,4 @@
-/* .map-popup-overlay {
+.map-popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -32,4 +32,4 @@
     padding: 10px;
     cursor: pointer;
     z-index: 2000; 
-  } */
+  }
