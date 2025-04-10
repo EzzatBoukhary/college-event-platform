@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, TextField, Typography, Box } from '@mui/material';
+import Rating from '@mui/material/Rating'; // Importing the Rating component from Material UI
 import CommentsSection from './CommentsSection'; // Adjust the import path as needed
 import './GeneralDetails.css';
 
@@ -13,10 +14,14 @@ function EventDetails() {
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // New state for rating and its feedback message.
+  const [userRating, setUserRating] = useState<number | null>(0);
+  const [ratingStatus, setRatingStatus] = useState<string>('');
+
   const eventId = localStorage.getItem("eventId") || '';
   console.log('Retrieved eventId from localStorage:', eventId);
 
-  // Fetch the event's information
+  // Fetch the event's details when the component mounts.
   useEffect(() => {
     const fetchEventDetails = async () => {
       if (!eventId) {
@@ -60,6 +65,39 @@ function EventDetails() {
 
     fetchEventDetails();
   }, [eventId]);
+
+  // Handle rating submission
+  const handleRatingSubmit = async () => {
+    // Make sure the user actually selected a rating
+    if (!userRating || userRating < 1 || userRating > 5) {
+      setRatingStatus('Please select a rating between 1 and 5.');
+      return;
+    }
+
+    // Assuming a userID is stored in localStorage (replace or update this as needed)
+    const userId = localStorage.getItem('userID') || '1';
+
+    try {
+      const response = await fetch('http://155.138.217.239:5000/api/events/addRating', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          EventID: eventId,
+          UID: userId,
+          Rating: userRating,
+        }),
+      });
+      const result = await response.json();
+      if (response.ok) {
+        setRatingStatus(result.message);
+      } else {
+        setRatingStatus(result.error || 'Failed to submit rating.');
+      }
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+      setRatingStatus('Error submitting rating.');
+    }
+  };
 
   return (
     <div style={{ width: '100vw', height: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -166,6 +204,29 @@ function EventDetails() {
                 readOnly: true,
               }}
             />
+
+            {/* Rating Section */}
+            <Box sx={{ marginTop: 2, display: 'flex', alignItems: 'center' }}>
+              <Typography variant="h6" sx={{ marginRight: 2 }}>
+                Rate this Event:
+              </Typography>
+              <Rating
+                name="event-rating"
+                value={userRating || 0}
+                onChange={(event, newValue) => {
+                  setUserRating(newValue);
+                }}
+                precision={1}
+              />
+              <Button onClick={handleRatingSubmit} variant="contained" sx={{ marginLeft: 2 }}>
+                Submit Rating
+              </Button>
+            </Box>
+            {ratingStatus && (
+              <Typography variant="body2" sx={{ marginTop: 1 }}>
+                {ratingStatus}
+              </Typography>
+            )}
           </>
         )}
         {statusMessage && <Typography variant="body2" color="error">{statusMessage}</Typography>}
