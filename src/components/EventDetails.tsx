@@ -207,7 +207,7 @@ function EventDetails() {
 
             {/* Rating Section */}
             <Box sx={{ marginTop: 2, display: 'flex', alignItems: 'center', color: 'white' }}>
-              <Typography variant="h6" sx={{ marginRight: 2 }}>
+              <Typography variant="h6" sx={{ marginRight: 2, color: 'white' }}>
                 Rate this Event:
               </Typography>
               <Rating
