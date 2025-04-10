@@ -1,5 +1,5 @@
 .custom-textfield .MuiInputBase-input.Mui-disabled {
-    color: black !important; /* Override disabled text color */
+    color: rgb(255, 255, 255) !important; /* Override disabled text color */
 }
 
 #SaveChanges{

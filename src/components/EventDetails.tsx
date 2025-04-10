@@ -211,7 +211,7 @@ function EventDetails() {
                 Rate this Event:
               </Typography>
               <Rating
-                name="event-rating"
+                name="input"
                 value={userRating || 0}
                 onChange={(event, newValue) => {
                   setUserRating(newValue);
