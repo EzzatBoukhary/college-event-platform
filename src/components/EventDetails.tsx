@@ -67,8 +67,8 @@ function EventDetails() {
   }, [eventId]);
 
   return (
-    <div style={{ width: '100vw', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <Box
+  <div style={{ width: '100vw', height: '100vh', overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Box
         className="boxDiv"
         sx={{
           display: 'flex',

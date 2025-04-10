@@ -69,7 +69,7 @@ function CreateEvent() {
   };
 
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+  <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', overflowX: 'hidden', padding: '20px' }}>
       <Box
         className="boxDiv"
         sx={{
