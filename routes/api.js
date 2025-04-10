@@ -823,12 +823,29 @@ router.get('/events/:EventID', async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  const query = 'SELECT * FROM Events WHERE EventID=? LIMIT 1';
+  const query = `
+    SELECT 
+      E.*,
+      L.Name AS LocationName,
+      L.Description AS LocationDescription,
+      L.Latitude,
+      L.Longitude
+    FROM Events E
+    LEFT JOIN Locations L ON E.LocID = L.LocID
+    WHERE E.EventID = ?
+    LIMIT 1
+  `;
   const values = [EventID];
 
-  const [result] = await pool.execute(query, values);
-  res.status(200).json(result);
+  try {
+    const [result] = await pool.execute(query, values);
+    res.status(200).json(result);
+  } catch (err) {
+    console.error('Error fetching event details:', err);
+    res.status(500).json({ error: 'Failed to fetch event details' });
+  }
 });
+
 
 // Get RSO Details
 router.get('/rso/:RSO_ID', async (req, res) => {
