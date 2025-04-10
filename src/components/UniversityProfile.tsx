@@ -12,7 +12,7 @@ function UniversityProfile() {
     const [isLoading, setIsLoading] = useState(true);
 
     const uniId = localStorage.getItem('UniID') || '';
-    const userType = localStorage.getItem('UserType'); // can be "Student", "Admin", or "SuperAdmin"
+    const userType = localStorage.getItem('userType'); // can be "Student", "Admin", or "SuperAdmin"
     const isSuperAdmin = userType === 'SuperAdmin';
 
     // Fetch the university's information
