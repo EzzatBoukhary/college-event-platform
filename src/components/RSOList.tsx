@@ -88,7 +88,7 @@ function RSOList() {
           onChange={handleSearchChange}
         />
       </form>
-      {(userType === "Admin" || userType === "Super Admin") && (
+      {(userType === "Admin" || userType === "SuperAdmin") && (
         <Button
           id="createButton"
           className="ncButton"

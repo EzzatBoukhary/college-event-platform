@@ -81,7 +81,7 @@ function UniversityProfile() {
         // Data for updating/creating the university information
 
         try {
-            const response = await fetch('https://155.138.217.239:5000/university/addUni', {
+            const response = await fetch('https://155.138.217.239:5000/api/university/addUni', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({Name: uniName, Location: location, Description: description, NumStudents: studentNum, EmailDomain: domain}),
