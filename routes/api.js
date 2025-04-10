@@ -358,25 +358,31 @@ router.get('/rso/searchRSOs', async (req, res) => {
   }
 
   try {
-    // Get user's university
-    const [[user]] = await pool.execute(
-      'SELECT UnivID FROM Users WHERE UID = ?',
-      [UID]
-    );
-
+    // Get user info
+    const [[user]] = await pool.execute('SELECT UnivID, UserType FROM Users WHERE UID = ?', [UID]);
     if (!user) return res.status(404).json({ error: 'User not found' });
-    if (!user.UnivID) return res.status(400).json({ error: 'User is not associated with a university' });
 
-    const [rows] = await pool.execute(
-      'SELECT * FROM RSOs WHERE UnivID = ? AND Name LIKE ?',
-      [user.UnivID, `%${Name || ''}%`]
-    );
+    let query = 'SELECT * FROM RSOs WHERE 1=1';
+    const values = [];
 
-    return res.status(200).json(rows);
+    // Add name filter if provided
+    if (Name) {
+      query += ' AND Name LIKE ?';
+      values.push(`%${Name}%`);
+    }
 
+    // Only filter by UnivID if the user is not a SuperAdmin
+    if (user.UserType !== 'SuperAdmin') {
+      query += ' AND UnivID = ?';
+      values.push(user.UnivID);
+    }
+
+    const [rows] = await pool.execute(query, values);
+
+    res.status(200).json(rows);
   } catch (err) {
     console.error('Error searching RSOs:', err);
-    return res.status(500).json({ error: 'Failed to search RSOs', details: err.message });
+    res.status(500).json({ error: 'Failed to search RSOs' });
   }
 });
 
