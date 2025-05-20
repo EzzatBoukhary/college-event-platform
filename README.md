@@ -27,7 +27,7 @@ A full-stack event management web app designed to support public, private, and R
 - **Frontend:** React, TypeScript
 - **Backend:** Node.js, Express.js (JavaScript)
 - **Database:** MySQL (3NF schema, ER modeling, constraints, and triggers)
-- **Tools:** Postman, MySQL Workbench, Git, GitHub, ER diagramming
+- **Tools:** Postman, Linux, MySQL, Git, GitHub, ER diagramming
 
 
 
